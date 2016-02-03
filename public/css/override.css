@@ -1,0 +1,24 @@
+/* override some settings from bootstrap and awesome-bootstrap-checkbox */
+
+table {
+    width:100%;
+}
+
+
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th {
+    vertical-align: middle;
+    padding: 0px;
+}
+
+.table>thead>tr>td, .table>thead>tr>th {
+    vertical-align: middle;
+    text-align: center;
+    padding: 0px;
+}
+
+.checkbox label {
+    padding-left: 0px;
+}
+
+
+

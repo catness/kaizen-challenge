@@ -1,0 +1,24 @@
+
+.column {
+    text-align: center;
+}
+
+.ctitle {
+    text-align:center;
+}
+
+.cstart {
+  text-align:center;  
+}
+
+.taskname .taskmove {
+	visibility:hidden;
+}
+.taskname:hover .taskmove {
+	visibility:visible;
+}
+
+.copyright {
+	padding: 20px;
+	font-style: italic;
+}

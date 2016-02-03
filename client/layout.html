@@ -1,0 +1,76 @@
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kaizen Challenge</title>
+<link rel="stylesheet" href="/css/cerulean.css" id='currentTheme'> 
+<link rel="stylesheet" href="/css/override.css">
+</head>
+<body>
+</body>
+
+<template name="layout">
+    {{> yield "main" }}
+</template>
+
+<template name="footer">
+    <div class="footer {{footerclass}} small">
+<!--    <div class="footer small"> -->
+      <div class="container-fluid">
+        <div class="row">
+        <div class="col-xs-12">
+        <div class="copyright">
+        Copyright &copy; 2016 by <a href="mailto:catness@gmail.com">Cat Gray</a>. Free Bootstrap themes are from <a href="http://bootswatch.com">Bootswatch</a>. 
+        </div>
+        </div>
+        </div>
+      </div>
+    </div>
+</template>
+
+<template name="navbar">
+    <nav class="navbar navbar-fixed navbar-inverse">
+    <div class="container-fluid">
+        
+    <div class="navbar-header">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    </button>
+
+    <a class="navbar-brand" href="/">改善</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="navbar">
+    <ul class="nav navbar-nav">
+
+        <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Themes <b class="caret"></b></a>
+              <ul class="dropdown-menu"> <!-- themes from http://bootswatch.com -->
+              {{#each themes}}
+              <li class="{{ifThemeActive theme}}">
+              <a href="#" data-theme="{{theme}}" class="theme-link">{{theme}}</a></li>
+              {{/each}}
+              </ul>
+            </li>
+
+
+    <!-- $.Session.equals is provided by raix:handlebar-helpers module -->
+    <li><a href="/about">About</a></li> 
+    <li><a href="/">Home</a></li>
+
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+        {{> loginButtons}}  <!-- ian:accounts-ui-bootstrap-3 -->
+    </ul>
+
+    </div> <!-- main navbar -->
+
+    </div>
+    </nav>
+</template>
+
+
+
+
+

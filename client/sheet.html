@@ -1,0 +1,84 @@
+<template name="sheet">
+{{> navbar}}
+{{> editTask}}
+{{> editTitle}}
+{{> editStart}}
+<div class="container-fluid">
+<div class="row">
+<div class="col-xs-12">
+
+{{#if result}}
+
+{{#if result.tasksheet}}
+{{#let tasksheet=result.tasksheet}}
+
+<h1 class="ctitle" id="js-title">{{tasksheet.title}}</h1>
+<h2 class="cstart" id="js-start">{{tasksheet.start}} - {{getEnd tasksheet.start}}</h2>
+
+<form role="form">
+  <div class="table-responsive">
+  <input type="hidden" id="userid" value="{{tasksheet.userid}}">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Task</th>
+        {{#each tasksheet.tasks.[0].days}}
+        <th>
+        <a href="#" data-toggle="tooltip" title="{{day}}">{{inc @index}}</a>
+        </th>
+        {{/each}}
+      </tr>
+    </thead>
+    <tbody>
+    {{#each tasksheet.tasks}}
+    {{#let taskindex=@index}}
+    <!-- I tried to use @../index to access the outer index but it didn't work, so I created a special var taskindex -->
+    <tr>
+    <td>
+    <div class="taskname">
+    <a class="js-taskname" href="#" data-toggle="tooltip"  id="t_{{@index}}" title="{{description}}">{{title}}</a>
+    <span class="taskmove">
+    <a href="#" class="btn btn-default btn-xs js-pos" id="up_{{@index}}"><i class="fa fa-arrow-up"></i> </a> 
+    <a href="#" class="btn btn-default btn-xs js-pos" id="down_{{@index}}"><i class="fa fa-arrow-down"></i> </a>
+    </span>
+    </div>
+
+    </td>
+    {{#each days}}
+    <td class="{{getColumnClass day}}">
+    <div class="checkbox {{getCheckboxClass value}}">
+    <input type="checkbox" id="c_{{taskindex}}_{{@index}}" class="styled js-checkbox" checked="{{isChecked value}}">
+    <label></label></div>
+    </td>
+    {{/each}}
+    </tr>
+    {{/let}}
+    {{/each}}
+
+
+    </tbody>
+  </table>
+  </div>
+  </form>
+
+{{/let}} <!-- end let tasksheet=result.tasksheet -->
+
+{{else}} <!-- tasksheet is empty - not loaded yet -->
+<h1>Please wait for the challenge sheet to load...</h1>
+{{/if}} <!-- end tasksheet exists -->
+
+{{else}}
+<h1>Please login to access your challenge sheet.</h1>
+{{/if}}
+
+  </div>
+</div>  
+</div>
+
+{{#if result}}
+{{> footer footerclass=""}}
+{{else}}
+{{> footer footerclass="navbar-fixed-bottom"}}
+{{/if}}
+
+</template>
