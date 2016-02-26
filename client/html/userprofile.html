@@ -1,0 +1,201 @@
+<template name="editprofile">
+<!-- uses bootstrap validator and validate.js for non-standard attrs: data-match, minlength, remote -->
+<!-- this form is used both for registering a new user and editing the existing user. 
+The differences are marked with if currentUser (standard helper) -->
+<div class="container-flexible userform">
+
+<div class="row">
+<div class="col-xs-11 col-xs-offset-1 col-md-6">
+
+<div class="panel-group">
+
+<div class="panel panel-default">
+<div class="panel-heading">
+{{#if currentUser}} 
+Edit settings
+
+{{#if user.profile.external}}
+<h2>(Registered via {{user.profile.external}})</h2>
+{{/if}}
+
+{{else}}
+Create account
+{{/if}}
+</div> <!-- end panel heading -->
+
+<div class="panel-body">
+
+    <form id="form-editprofile" class="form-horizontal" role="form" data-toggle="validator">
+
+        <div class="form-group">
+            <label for="inputUsername" class="control-label col-xs-4">Username</label>
+            <div class="col-xs-8">
+            <!-- data-remote requres name! -->
+                <input type="text" class="form-control" id="inputUsername" name="inputUsername" value="{{user.username}}"
+                placeholder="Username" 
+                data-remote="/validateusername/{{user.username}}"
+                data-remote-error="Username already in use!"
+                pattern="[A-Za-z0-9_\-\.]{3,64}" 
+                data-error="Username can contain only alphanumeric characters, dash, dot and underscore and must be between 3 and 64 characters" 
+                required>
+                <div class="help-block with-errors"></div>
+            </div>
+        </div>
+        
+        {{#if currentUser}}
+        <div class="form-group">
+            <label class="control-label col-xs-4">Avatar</label>
+            <div class="col-xs-8">
+            {{> avatarManager}}
+            </div>
+        </div>
+        {{/if}}
+
+        {{#if emailRequired}}   
+        <div class="form-group">
+            <label for="inputEmail" class="control-label col-xs-4">Email 
+            {{#if user.emailNotVerified}}<span class="label label-danger">not verified</span>{{/if}}
+            </label>
+            <div class="col-xs-8">
+            <!-- data-remote requres name! -->
+                <input type="email" class="form-control" id="inputEmail" name="inputEmail" value="{{user.email}}"
+				placeholder="Email" 
+                data-remote="/validateemail/{{user.email}}"
+                data-remote-error="Email address already in use!"
+                data-error="Email address is invalid" required >
+                <div class="help-block with-errors"></div>
+            </div>
+        </div>
+
+        {{#if user.emailNotVerified}}
+        <div class="form-group">
+            <div class="col-xs-8 col-xs-offset-2">
+
+            <a href="#" id="send-verification-email">Send verification email</a>
+
+           	<div class="alert alert-success hidden" id="verification-email-sent">
+    		  <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    		  <strong>Verification email sent!</strong>
+    		</div>
+
+            </div>
+        </div>
+        {{/if}}
+        {{/if}}
+
+        {{#unless user.profile.external}}
+        <div class="form-group">
+            <label for="inputPassword" class="control-label col-xs-4">
+            {{#if currentUser}} New password {{else}} Password {{/if}}
+            </label>
+            <div class="col-xs-8">
+            	<!-- empty password is ok, but if non-empty, it must be validated like a regular password
+				Leaving it as an external method, to add 'strength' later
+            	 -->
+
+            	{{#if currentUser}}
+	            <input type="password" class="form-control" id="inputPassword" placeholder="Password" 
+	            data-passwordlength="passwordlength" 
+                data-error="Password is too short: must be at least 6 characters">
+                {{else}} <!-- for new user, password is required : can't be empty -->
+                <input type="password" class="form-control" id="inputPassword" placeholder="Password" 
+	            data-passwordlength="passwordlength" 
+                data-error="Password is too short: must be at least 6 characters" required>
+                {{/if}}
+
+
+                <div class="help-block with-errors"></div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="confirmPassword" class="control-label col-xs-4">Confirm password</label>
+            <div class="col-xs-8">
+                <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm password" 
+                data-match="#inputPassword" data-match-error="Passwords don't match">
+                <div class="help-block with-errors"></div>
+            </div>
+        </div>
+        {{/unless}}
+
+        <div class="form-group">
+            <label for="inputRealname" class="control-label col-xs-4">Display name</label>
+            <div class="col-xs-8">
+                <input type="text" class="form-control" id="inputRealname" value="{{user.profile.name}}"
+                placeholder="Display name" required>
+            </div>
+        </div>
+
+        <!-- doesn't make sense to ask them all this info until they are registered -->
+        {{#if currentUser}}
+        <div class="form-group">
+            <label for="inputBio" class="control-label col-xs-4">Bio</label>
+            <div class="col-xs-8">
+                <textarea rows="3" class="form-control" id="inputBio" value="{{user.profile.bio}}"
+                placeholder="Some info about you..."></textarea>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="inputHomepage" class="control-label col-xs-4">Home page</label>
+            <div class="col-xs-8">
+                <input type="url" class="form-control" id="inputHomepage" value="{{user.profile.homepage}}"
+                placeholder="http://">
+            </div>
+        </div>
+
+        {{/if}} <!-- currentUser -->
+
+         <div class="form-group">
+            <div class="col-xs-offset-2 col-xs-8">
+                <button type="submit" class="btn btn-success">
+                {{#if currentUser}} Update {{else}} &nbsp;&nbsp; Join &nbsp;&nbsp; {{/if}}
+                </button>
+            </div>
+        </div>
+    </form>
+
+</div> <!-- end panel body -->
+</div> <!-- end panel -->
+
+{{#unless currentUser}}
+<div class="panel panel-default">
+<div class="panel-heading">Or pick one:</div>
+<div class="panel-body">
+
+<a data-service="twitter" class="btn btn-block btn-social btn-twitter login-social">
+<span class="fa fa-twitter"></span>Sign up with Twitter
+</a>
+
+<a data-service="facebook" class="btn btn-block btn-social btn-facebook login-social">
+<span class="fa fa-facebook"></span>Sign up with Facebook
+</a>
+
+<a data-service="google" class="btn btn-block btn-social btn-google login-social">
+<span class="fa fa-google"></span>Sign up with Google
+</a>
+
+<a data-service="github" class="btn btn-block btn-social btn-github login-social">
+<span class="fa fa-github"></span>Sign up with GitHub
+</a>
+
+</div> <!-- panel-body -->
+</div> <!-- panel -->
+
+
+<div class="panel panel-default">
+<div class="panel-body">
+<a href="/login" class="btn btn-info btn-left">Have an account? Sign in</a>
+</div>
+</div>
+{{/unless}}
+
+</div> <!-- end panel group -->
+
+
+</div> <!-- end col -->
+</div> <!-- end row -->
+</div> <!-- end container -->
+
+</template>
+

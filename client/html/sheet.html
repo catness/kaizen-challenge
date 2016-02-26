@@ -1,5 +1,4 @@
 <template name="sheet">
-{{> navbar}}
 {{> editTask}}
 {{> editTitle}}
 {{> editStart}}
@@ -61,13 +60,28 @@
   </div>
   </form>
 
+{{#if isInRole 'admin'}}
+<div>
+<button id="delete-challenge" data-user="{{tasksheet.userid}}" data-challenge="{{tasksheet.challenge}}" 
+type="button" class="btn btn-warning">Delete this challenge</button>
+</div>
+{{/if}}
+
 {{/let}} <!-- end let tasksheet=result.tasksheet -->
 
 {{else}} <!-- tasksheet is empty - not loaded yet -->
-<h1>Please wait for the challenge sheet to load...</h1>
+
+<h1>
+{{#if result.ready}}
+This challenge sheet does not exist for this user.
+{{else}}
+Please wait for the challenge sheet to load...
+{{/if}}
+</h1>
+
 {{/if}} <!-- end tasksheet exists -->
 
-{{else}}
+{{else}} <!-- / {{#if result}} -->
 <h1>Please login to access your challenge sheet.</h1>
 {{/if}}
 

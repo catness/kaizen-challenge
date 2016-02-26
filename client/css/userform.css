@@ -1,0 +1,84 @@
+/* fix the bug with halfling fonts */
+/*
+@font-face {
+  font-family: 'Glyphicons Halflings';
+  src: url('packages/bootswatch_cerulean/bootstrap/dist/fonts/glyphicons-halflings-regular.eot');
+  src: url('packages/bootswatch_cerulean/bootstrap/dist/fonts/glyphicons-halflings-regular.eot?') format('embedded-opentype'),
+    url('packages/bootswatch_cerulean/bootstrap/dist/fonts/glyphicons-halflings-regular.woff2') format('woff2'),
+    url('packages/bootswatch_cerulean/bootstrap/dist/fonts/glyphicons-halflings-regular.woff') format('woff'),
+    url('packages/bootswatch_cerulean/bootstrap/dist/fonts/glyphicons-halflings-regular.ttf') format('truetype'),
+    url('packages/bootswatch_cerulean/bootstrap/dist/fonts/glyphicons-halflings-regular.svg') format('svg');
+}
+*/
+
+.userform {
+	margin:20px;
+}
+
+/* for recovery email and password, because the inline forms are by default too short. How to do it properly?? */
+.widetext {
+	width: 300px !important;
+}
+
+/* center the avatar image vertically on the navbar (navbar's height is 50, we use small avatar with height 30) */
+.avatar-nav {
+	top: 10px;
+}
+
+.avatar {
+	float:left;
+}
+
+.edit-avatar {
+	float:right;
+}
+
+.userlistname {
+  padding-left:10px;
+}
+
+
+/* for putting the icons in text fields to the left side */
+
+.fa.form-control-feedback {
+    line-height: 34px; /* @input-height-base; */
+}
+.input-sm ~ .fa.form-control-feedback {
+    line-height: 30px; /* @input-height-base; */
+}
+.input-lg ~ .fa.form-control-feedback {
+    line-height: 46px; /* @input-height-base; */
+}
+
+
+.has-feedback-left input.form-control {
+    padding-left: 34px; /* @input-height-base; */
+    padding-right: 12px; /* @padding-base-horizontal */
+}
+
+.has-feedback-left .form-control-feedback {
+    left: 0; 
+}
+.form-horizontal .has-feedback-left .form-control-feedback {
+    left: 12px; /* @grid-gutter-width / 2 */
+}
+
+.has-feedback-left input.input-sm {
+  padding-left: 30px;  
+}
+.has-feedback-left input.input-lg {
+  padding-left: 46px;  
+}
+
+/* for cerulean
+.panel-default > .panel-heading {
+  background-color: #b9e5ec !important;
+}
+*/
+
+.btn-left {
+  float:left;
+}
+.btn-right {
+  float:right;
+}

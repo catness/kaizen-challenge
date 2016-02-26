@@ -1,0 +1,38 @@
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kaizen Challenge</title>
+<link rel="stylesheet" href="/css/cerulean.css" id='currentTheme'> 
+<link rel="stylesheet" href="/css/override.css">
+</head>
+<body>
+</body>
+
+<template name="layout">
+  {{> navbar}}
+  {{> yield}}
+</template>
+
+
+
+<template name="footer">
+    <div class="footer {{footerclass}} small">
+<!--    <div class="footer small"> -->
+      <div class="container-fluid">
+        <div class="row">
+        <div class="col-xs-12">
+        <div class="copyright">
+        Copyright &copy; 2016 by <a href="mailto:catness@gmail.com">Cat Gray</a>. Free Bootstrap themes are from <a href="http://bootswatch.com">Bootswatch</a>. 
+        </div>
+        </div>
+        </div>
+      </div>
+    </div>
+</template>
+
+
+<template name="loadingdata">
+<h1>Loading data, please wait...</h1>
+</template>
+
+
+

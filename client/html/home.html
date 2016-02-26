@@ -1,0 +1,50 @@
+<template name="home">
+
+<div class="container-fluid">
+
+{{#if displayMessage}} <!-- displays an info message from the session, if the user is redirected to this page -->
+<div class="row">
+<div class="col-xs-12 col-lg-6">
+	<div class="alert alert-info">
+	  <a href="#" class="close" data-dismiss="alert" aria-label="close" id="js-display-message">&times;</a>
+	  <strong>{{displayMessage}}</strong>
+	</div>
+</div>
+</div>
+{{/if}}
+
+<div class="row hidden" id="please-wait">
+<div class="col-xs-12 col-lg-6">
+    <div class="alert alert-info">
+      <strong>Challenge is being created, please wait...</strong>
+    </div>
+</div>
+</div>
+
+<div class="row">
+<div class="col-xs-12 col-lg-8">
+
+<div class="well">
+{{#if challengeExists "30x30"}}
+<a href="/challenge/30x30/{{username}}">30x30 challenge</a>
+{{else}}
+<button class="join-challenge btn btn-success" data-challenge="30x30">Join the 30 things in 30 days Kaizen challenge</button>
+{{/if}}
+
+<br/>
+<br/>
+
+{{#if challengeExists "10x30"}}
+<a href="/challenge/10x30/{{username}}">10x30 March 2016 challenge</a>
+{{else}}
+<button class="join-challenge btn btn-success" data-challenge="10x30">Join the March 2016 challenge (10 things in 30 days)</button>
+{{/if}}
+
+</div>
+
+</div>
+</div>
+</div>
+
+</template>
+

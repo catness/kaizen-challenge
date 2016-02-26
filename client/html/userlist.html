@@ -1,0 +1,91 @@
+<template name="allUserData">
+
+<div class="container-fluid">
+<div class="row">
+<div class="col-xs-12">
+
+{{> pager}}
+
+
+<div class="table-responsive">
+<table class="table user-list">
+<thead>
+<tr>
+<th>USER</th><th>JOINED</th><th>LAST LOGIN</th><th>30x30</th><th>10x30</th>
+</tr>
+</thead>
+<tbody>
+{{#each users}}
+<tr>
+<td>
+  <a href="/user/{{username}}" class="pull-left">        
+    {{>avatar user=this size="small" shape="square"}}
+  </a>
+  <a class="userlistname" href="/user/{{username}}">{{profile.name}}</a>
+</td>
+
+<td>
+{{formatDate createdAt}}
+</td>
+
+<td>
+<i class="fa fa-icon-time" data-toggle="tooltip" data-placement="bottom" title="{{lastlogin}}"></i>{{formatDate lastLogin}}
+</td>
+
+<td>
+{{#if challengeExists this._id "30x30"}}
+<a href="/challenge/30x30/{{username}}">30x30 challenge</a>
+{{/if}}
+</td>
+
+<td>
+{{#if challengeExists this._id "10x30"}}
+<a href="/challenge/10x30/{{username}}">10x30 challenge</a>
+{{/if}}
+</td>
+
+</tr>
+
+{{/each}}
+</tbody>
+</table>
+</div> <!-- class=table -->
+
+
+</div>
+</div>
+</div>
+</template>
+
+<template name="pager">
+<nav>
+    <ul class="pager">
+
+      <li class="{{prevPageClass}}">
+        <a id="firstPage" href="{{firstPage}}">
+          <i class="fa fa-fast-backward" aria-hidden="true"></i> First
+        </a>
+      </li>
+      <li class="{{prevPageClass}}">
+        <a id="prevPage" href="{{prevPage}}">
+          <i class="fa fa-backward" aria-hidden="true"></i> Previous
+        </a>
+      </li>
+
+
+      <li> Page {{curPage}} of {{totalPages}}</li>
+
+      <li class="{{nextPageClass}}">
+        <a id="nextPage" href="{{nextPage}}">
+          Next <i class="fa fa-forward" aria-hidden="true"></i>
+        </a>
+      </li>
+      <li class="{{nextPageClass}}">
+        <a id="lastPage" href="{{lastPage}}">
+          Last <i class="fa fa-fast-forward" aria-hidden="true"></i>
+        </a>
+      </li>
+
+    </ul>
+  </nav>
+</template>

@@ -1,110 +1,3 @@
-Accounts.createUser = _.wrap(Accounts.createUser, function(createUser) {
-    // this callback is used here only to redirect the user to the main page after creating the account
-    var args = _.toArray(arguments).slice(1),
-        user = args[0];
-        origCallback = args[1];
-
-    var newCallback = function(error) {
-        console.log("create user " + user);
-        origCallback.call(this, error);
-    };
-
-    createUser(user, newCallback);
-    Router.go("/");
-});
-
-Meteor.autorun(function () {
-    // this callback is required to load the user's preferred theme on login
-    if (Meteor.userId()) { // on login
-        console.log("User logged in : " + Meteor.userId());
-        // database on the client may be not ready when the user logs in, so we go to the server
-        Meteor.call("getTheme",Meteor.userId(), function(error,theme) {
-            if (error) return;
-            if (theme) set_theme(theme);
-        });
-    } else {
-        // on logout
-        console.log("User logged out");
-    }
-});
-
-
-Handlebars.registerHelper("inc", function(value, options)
-{
-    return parseInt(value) + 1;
-});
-
-Template.navbar.helpers({
-    themes: [
-    {theme: "cerulean"},
-    {theme: "cosmo"},
-    {theme: "cyborg"},
-    {theme: "darkly"},
-    {theme: "flatly"},
-    {theme: "journal"},
-    {theme: "lumen"},
-    {theme: "paper"},
-    {theme: "readable"},
-    {theme: "sandstone"},
-    {theme: "simplex"},
-    {theme: "slate"},
-    {theme: "spacelab"},
-    {theme: "superhero"},
-    {theme: "united"},
-    {theme: "yeti"}
-    ],
-    ifThemeActive:function(theme) {
-        var current = Session.get("theme");
-        if (theme == current) return 'active';
-        return '';
-    }
-  });
-
-
-function set_theme(theme) {
-    var themePath = "/css/" + theme + ".css";   
-    $('#currentTheme').remove();
-    $('head').append('<link id="currentTheme" rel="stylesheet" href="' + themePath + '" type="text/css" />'); 
-    $('head').append('<link id="currentTheme" rel="stylesheet" href="/css/override.css" type="text/css" />');
-    Session.set("theme",theme);
-}
-
-
-  Template.navbar.events({
-    "click .theme-link": function(event){
-        // save the theme in db in the user's profile
-      var theme = $(event.target).attr('data-theme');
-      set_theme(theme);
-      if (Meteor.userId()) {
-        Meteor.call("updateTheme",Meteor.userId(),theme);
-      }
-    }   
-  });
-
-
-Accounts.ui.config({
-    requestPermissions: {},
-    extraSignupFields: [{
-      fieldName: 'username',
-      fieldLabel: 'Username',
-      inputType: 'text',
-      visible:true,
-      validate: function(value, errorFunction) {
-          if (!value) {
-            errorFunction("Please specify username");
-            return false;
-          } 
-          else if (value.search(/^[a-zA-Z0-9_\-\.]+$/)==-1) {
-            errorFunction("Username can contain only alphanumeric characters, dot, dash and underscore.");
-            return false;
-          }
-          else {
-            return true;
-          }
-        }
-    }
- ]});
-
 Template.sheet.helpers({
     result:function() {
         // wrapping tasksheet in a special "result" object to distinguish between the case when the user is not logged in
@@ -114,16 +7,29 @@ Template.sheet.helpers({
             console.log("Userid not defined");
             return null;
         }
+        var challenge = Session.get("challenge");
         if (!Session.get("ready")) {
             console.log("DB not ready");
-            return {tasksheet:null};
+            return {tasksheet:null,ready:false};
         }
-        var tasksheet = Tasks.findOne({userid:userid});
+        var tasksheet = Tasks.findOne( { $and:[{userid:userid}, {challenges: {$elemMatch: {challenge:challenge }}} ]} );
         if (!tasksheet) {
-            return {tasksheet:null};
+            return {tasksheet:null,ready:true};
         }
         else {
-            return {tasksheet:tasksheet};
+            // select the challenge with the name 'challenge'
+            // it should be done with mongo, but the command only works in mongo shell but not here
+            // e.g. db.tasks.findOne( {$and: [ {userid:"nBwcQQM6uJBPdHkfj"},{challenges: {$elemMatch: {challenge:"10x30"}}} ]}, {"challenges.$":1 } );
+            // so we just loop through all the challenges and pick the one we need
+            var sheet;
+            tasksheet.challenges.forEach(function(item){
+                if (item.challenge == challenge) {
+                    sheet = item;
+                    return;
+                }
+            });
+            sheet.userid = userid;
+            return {tasksheet:sheet,ready:true};
         }
     },
     getCheckboxClass:function(val) {
@@ -143,7 +49,17 @@ Template.sheet.helpers({
         var date = new Date(start);
         var enddate = date.addDays(maxDay-1).toDateString();
         return enddate;
-    }
+    },
+/*
+    isDeletable:function() {
+        var challenge = Session.get("challenge");
+        var userid = Session.get("userid");
+        // the user can delete his own challenge; admin can delete all challenges
+        // return (userid==Meteor.userId() || Roles.userIsInRole(Meteor.userId(),['admin']));
+
+        // the delete button should not appear for regular users, it's bad for the morale to see it all the time!
+        // if there will be a need, we'll think about it later.
+    } */
 });
 
 
@@ -151,17 +67,17 @@ Template.sheet.events({
     'click .js-checkbox': function(e) {
         // 3 way checkbox : toggles between success checked, error checked, and unchecked (with class=success)
         if (!Meteor.user()) return false;   
-        var userid = $("#userid").val();
+        //var userid = $("#userid").val();
+        var userid = Session.get("userid");
         if (userid != Meteor.userId()) return false; // this timesheet doesn't belong to the logged user
+        var challenge = Session.get("challenge");
         var checked = $(e.target).is(":checked")?1:0;
         var id = $(e.target).attr('id');
         var splitted = id.split('_');
         var taskid = splitted[1];
         var dayid = splitted[2];
-        console.log(" taskid="+taskid+" dayid="+dayid+" userid="+userid+" checked="+checked);
         var parent = $(e.target).parent().closest('div');
         var classes = parent.attr('class');
-        console.log("parent="+parent+ " classes="+classes);
 
         if (classes.indexOf("checkbox-success") != -1) { // current class is success
            if (checked) {  // change from empty to checked
@@ -183,10 +99,11 @@ Template.sheet.events({
             }
         }
 
-        Meteor.call('checkbox', Meteor.userId(), taskid, dayid, checked);
+        Meteor.call('checkbox', challenge, taskid, dayid, checked);
     },
     'click .js-taskname': function(e) {
         // open modal to edit the task name & description
+        if (Session.get("userid") != Meteor.userId()) return false;
         var splitted = $(e.target).attr('id').split('_');
         var taskid = splitted[1];
         var description = $(e.target).attr('title'); //tooltip
@@ -198,22 +115,26 @@ Template.sheet.events({
     },
     'click .js-pos': function(e) {
         // move the task up or down
+        if (Session.get("userid") != Meteor.userId()) return false;
         var splitted = $(e.currentTarget).attr('id').split('_');
         var dir = splitted[0]; // up or down
         var taskid = splitted[1];
         if (!Meteor.user()) return false;
-        var userid = $("#userid").val();
+        var userid = Session.get("userid");
         if (userid != Meteor.userId()) return false; // this timesheet doesn't belong to the logged user
-        Meteor.call('moveTask', Meteor.userId(), taskid, dir);
+        var challenge = Session.get("challenge");
+        Meteor.call('moveTask', challenge, taskid, dir);
     },
     'click #js-title': function(e) {
         // open modal to edit the sheet name
+        if (Session.get("userid") != Meteor.userId()) return false;
         var title = $("#js-title").text();
         $("#maintitle").val(title);
         $("#edittitle").modal('show');
     },
     'click #js-start': function(e) {
         // open modal to change the starting date
+        if (Session.get("userid") != Meteor.userId()) return false;
         var value = $("#js-start").text();
         var splitted = value.split(' - '); // get the start from "start - end"
         splitted = splitted[0].split(' '); // get the components of date e.g. Sun Jan 24 2016
@@ -231,6 +152,16 @@ Template.sheet.events({
         });
         $("#editstart").modal('show');
     },
+    'click #delete-challenge': function(e) {
+        
+        var userid = $(e.target).attr("data-user"); 
+        var challenge = $(e.target).attr("data-challenge");
+        Meteor.call("deleteChallenge",userid,challenge,function(err,result) {
+            if(!err) {
+                Router.go('/');
+            }
+        });
+    }
 });
 
 
@@ -239,12 +170,14 @@ Template.editTask.events({
     // update the task name & description
     e.preventDefault();
     if (Meteor.user()) {
-        var userid = $("#userid").val();
+        var userid = Session.get("userid");
+        //var userid = $("#userid").val();
         if (userid == Meteor.userId()) { // this timesheet belongs to the logged user
             var title = $(e.target).find('[name=title]').val().trim();
             var description = $(e.target).find('[name=description]').val().trim();
             var taskid = $(e.target).find('[name=pos]').val().trim();
-            Meteor.call('updateTask', Meteor.userId(), taskid, title, description);
+            var challenge = Session.get("challenge");
+            Meteor.call('updateTask', challenge, taskid, title, description);
         }
     }
     $("#edittask").modal('hide');
@@ -256,10 +189,12 @@ Template.editTitle.events({
     // update the sheet title
     e.preventDefault();
     if (Meteor.user()) {
-        var userid = $("#userid").val();
+        //var userid = $("#userid").val();
+        var userid = Session.get("userid");
         if (userid == Meteor.userId()) { // this timesheet belongs to the logged user
             var title = $(e.target).find('[name=title]').val().trim();
-            Meteor.call('updateTitle', Meteor.userId(), title);
+            var challenge = Session.get("challenge");
+            Meteor.call('updateTitle', challenge, title);
         }
     }
     $("#edittitle").modal('hide');
@@ -271,11 +206,13 @@ Template.editStart.events({
     // update the sheet start
     e.preventDefault();
     if (Meteor.user()) {
-        var userid = $("#userid").val();
+        //var userid = $("#userid").val();
+        var userid = Session.get("userid");
         if (userid == Meteor.userId()) { // this timesheet belongs to the logged user
             var start = $(e.target).find('[name=start]').val().trim();
             var date = new Date (Date.parse(start));
-            Meteor.call('updateStart', Meteor.userId(), date);
+            var challenge = Session.get("challenge");
+            Meteor.call('updateStart', challenge, date);
         }
     }
     $("#editstart").modal('hide');

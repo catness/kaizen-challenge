@@ -21,4 +21,15 @@ table {
 }
 
 
+.table.user-list>tbody>tr>td, .table.user-list>tbody>tr>th, .table.user-list>tfoot>tr>td, .table.user-list>tfoot>tr>th {
+    vertical-align: left !important;
+    padding: 10px;
+}
+
+.table.user-list>thead>tr>td, .table.user-list>thead>tr>th {
+    vertical-align: left !important;
+    text-align: left !important;
+    padding: 10px;
+}
+
 
