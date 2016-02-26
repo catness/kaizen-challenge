@@ -1,0 +1,51 @@
+<template name="avatarManager">
+  {{#if currentUser}}
+  <div class="container-flexible">
+    {{> editYourAvatarModal}}
+    
+    {{>avatarService serviceName='current'}}
+
+<!-- 
+    
+    {{#each userAvatarServices}}
+    {{#if hasService}}
+      {{>avatarService serviceName=this}}
+    {{/if}}
+    {{/each}}
+    
+    {{#if hasGravatar}}
+      {{>avatarService serviceName='gravatar'}}
+    {{/if}}
+    
+    {{#unless isDefaultAvatar}}
+      {{>avatarService serviceName='default'}}
+    {{/unless}}
+
+-->
+  </div>
+  {{/if}}
+</template>
+
+<template name="avatarService">
+  <div class="panel {{#if isCurrent}} panel-info {{else}} panel-default {{/if}}">
+
+<!--      <div class="panel-heading">
+        <h3 class="panel-title">{{capitalizeService this.serviceName}} Avatar</h3>
+      </div>
+      -->
+      <div class="panel-body">
+        {{> avatar serviceName=this.serviceName shape="square" size="large"}}
+        <span class="pull-right">
+          {{#if isCurrent}}
+            <button href="#" id="btnUpload" class="btn btn-primary" type="button">
+              Change
+            </button>
+          {{else}}
+            <button href="#" id="btnUseThis" data-id="{{this.serviceName}}" class="btn btn-default" type="button">
+              Use this
+            </button>
+          {{/if}}
+        </span>
+      </div>
+    </div>
+</template>
