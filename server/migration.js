@@ -2,6 +2,8 @@
 
 migration = function() {
 	console.log("Migration ... ");
+/*  Done on 2016-02-26
+
 	var users = Meteor.users.find({});
 	var challenge = "30x30";
 	users.forEach(function(user){
@@ -28,4 +30,5 @@ migration = function() {
 	        Tasks.update({userid:userid},{$unset: {title:1,start:1,tasks:1} } ); // delete the old challenge
 		}
 	});
+*/
 }

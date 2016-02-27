@@ -60,6 +60,13 @@ Meteor.startup(function() {
 		Meteor.users.update({_id:admin._id},{$set:{hidden:true}});
 	}
 
+	var admin = Meteor.users.findOne({"emails.0.address":"pathfinderjourney@gmail.com"});
+ 	if (admin) {
+		console.log("granting admin to " + admin._id);
+		Roles.addUsersToRoles( admin._id, ["admin"]);
+		Meteor.users.update({_id:admin._id},{$set:{hidden:true}});
+	}
+
 	// convert old db to the new format (needed only once)
 	migration();
 
