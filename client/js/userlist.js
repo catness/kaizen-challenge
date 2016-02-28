@@ -11,7 +11,7 @@ Template.allUserData.helpers({
     var users = Meteor.users.find({}, {
       limit: recordsPerPage,
       skip: skipCount,
-      sort: {"profile.name":1}
+      sort: {"lastLogin":-1,"profile.name":1}
     }).fetch();
     return users;
   },
