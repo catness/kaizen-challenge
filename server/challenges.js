@@ -9,7 +9,7 @@ challenge_titles10x30 = [
 Reddit, youtube, twitter or random blogs. Use the Internet only if you have a reason to do so. "
 ],
 [
-    "Kick off a bad habit",
+    "Break a bad habit",
     "Choose ONE bad habit and abstain from it throughout the 30 days. \
 This can be anything: Alcohol, Cigars, Porn, Nail-bitting or Video games... "
 ],
