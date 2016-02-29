@@ -58,6 +58,10 @@ Template.editprofile.onRendered(function () {
 Template.editprofile.events({
   // this is used both for edit profile and for register new user
   'submit #form-editprofile' : function(e, t) {
+    if (e.isDefaultPrevented()) {
+      console.log("the form does not validate");
+      return;
+    }
     e.preventDefault();
     var email = (t.find('#inputEmail'))?t.find('#inputEmail').value:'';
     var password = (t.find('#inputPassword'))?t.find('#inputPassword').value:'';
