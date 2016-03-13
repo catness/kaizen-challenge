@@ -2,6 +2,14 @@
 
 <div class="container-fluid">
 
+{{#if isDevelopment}}
+<div class="alert alert-danger">
+<p><strong> ATTENTION! </strong> This is a testing version of the site.</p> 
+<p>Please go to <strong><a href="http://kaizenchallenge.dynalias.net">http://kaizenchallenge.dynalias.net</a></strong> and update your bookmarks.</p>
+</div>
+{{/if}}
+
+
 {{#if displayMessage}} <!-- displays an info message from the session, if the user is redirected to this page -->
 <div class="row">
 <div class="col-xs-12 col-lg-6">

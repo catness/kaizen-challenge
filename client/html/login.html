@@ -1,6 +1,13 @@
 <template name="login">
 <div class="container-flexible userform">
 
+{{#if isDevelopment}}
+<div class="alert alert-danger">
+<p><strong> ATTENTION! </strong> This is a testing version of the site.</p> 
+<p>Please go to <strong><a href="http://kaizenchallenge.dynalias.net">http://kaizenchallenge.dynalias.net</a></strong> and update your bookmarks.</p>
+</div>
+{{/if}}
+
 <div class="row">
 <div class="col-xs-11 col-xs-offset-1 col-md-6">
 

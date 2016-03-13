@@ -70,4 +70,7 @@ Meteor.startup(function() {
 	// convert old db to the new format (needed only once)
 	migration();
 
+	console.log("ROOT_URL = " + process.env.ROOT_URL); 
+
+
 });

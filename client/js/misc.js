@@ -19,6 +19,10 @@ Handlebars.registerHelper("inc", function(value, options)
     return parseInt(value) + 1;
 });
 
+Template.registerHelper('isDevelopment', function() {
+  return isDevelopment;
+});
+
 Template.navbar.helpers({
     themes: [
     {theme: "cerulean"},

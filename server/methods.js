@@ -290,6 +290,9 @@ sendVerificationEmail: function(userid) {
 },
 setLastLogin: function() {
     Meteor.users.update({_id:this.userId},{$set:{lastLogin:new Date()}});
+},
+isDevelopment: function() {
+    console.log("isDevelopment? " + process.env.ROOT_URL);
+    return (process.env.ROOT_URL != "http://kaizenchallenge.dynalias.net");
 }
-
-})
+});
