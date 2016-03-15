@@ -1,0 +1,70 @@
+.notes {
+	border: 1px solid gray;
+	padding: 4px;
+	min-width:400px;
+}
+
+a.day-header:link {
+	padding-left:1px;
+	padding-right:1px;
+	padding-bottom:0px;
+	padding-top:0px;	
+}
+/*
+a.day-note:link {
+	border:1px solid #303030;
+}
+
+a.day-note-dark:link {
+	border:1px solid white;
+}
+*/
+a.day-note-cerulean:link {
+	border:1px solid #2fa4e7;
+}
+a.day-note-cosmo:link {
+	border:1px solid #2780e3;
+}
+a.day-note-cyborg:link {
+	border:1px solid #ffffff; 
+}
+a.day-note-darkly:link {
+	border:1px solid #0ce3ac;
+}
+a.day-note-flatly:link {
+	border:1px solid #18bc9c;
+}
+
+a.day-note-journal:link {
+	border:1px solid #eb6864;
+}
+a.day-note-lumen:link {
+	border:1px solid #158cba;
+}
+a.day-note-paper:link {
+	border:1px solid #2196f3;
+}
+a.day-note-readable:link {
+	border:1px solid #4582ec;
+}
+a.day-note-sandstone:link {
+	border:1px solid #93c54b;
+}
+a.day-note-simplex:link {
+	border:1px solid #d9230f;
+}
+a.day-note-slate:link {
+	border:1px solid #ffffff;
+}
+a.day-note-spacelab:link {
+	border:1px solid #3399f3;
+}
+a.day-note-superhero:link {
+	border:1px solid #ffffff;
+}
+a.day-note-united:link {
+	border:1px solid #dd4814;
+}
+a.day-note-yeti:link {
+	border:1px solid #008cba;
+}

@@ -1,3 +1,34 @@
+var notes = {};
+//var darkThemes = {"darkly":true,"cyborg":true,"slate":true,"superhero":true};
+var curTheme = "cerulean";
+
+Template.dayHeader.onRendered(function () {
+    // must wait till the day header is rendered before init popover, otherwise it doesnt work!
+    console.log("Init popover");
+    $('[data-toggle="popover"]').popover({html:true, placement:"auto left", trigger:"hover"});
+});
+
+Template.dayHeader.helpers({
+    dayNote:function(day) {
+        // display a note for this day in a popover
+        if (notes && day in notes) { 
+            if (notes[day].length < 500)  return notes[day];
+            else {
+                return notes[day].substr(0,500) + " ... click to read more ...";
+            }
+        }
+        return "";
+    },
+    dayNoteClass:function(day) {
+        // to distinguish visually between the days with and without notes
+        if (notes && day in notes) {
+           //return (curTheme in darkThemes)?"day-note-dark":"day-note";
+           return "day-note-" + curTheme;
+        }
+        return "";    
+    }   
+});
+ 
 Template.sheet.helpers({
     result:function() {
         // wrapping tasksheet in a special "result" object to distinguish between the case when the user is not logged in
@@ -12,14 +43,14 @@ Template.sheet.helpers({
             console.log("DB not ready");
             return {tasksheet:null,ready:false};
         }
-        var tasksheet = Tasks.findOne( { $and:[{userid:userid}, {challenges: {$elemMatch: {challenge:challenge }}} ]} );
+        var tasksheet = Tasks.findOne( {userid:userid, challenges: {$elemMatch: {challenge:challenge }}});
         if (!tasksheet) {
             return {tasksheet:null,ready:true};
         }
         else {
             // select the challenge with the name 'challenge'
-            // it should be done with mongo, but the command only works in mongo shell but not here
-            // e.g. db.tasks.findOne( {$and: [ {userid:"nBwcQQM6uJBPdHkfj"},{challenges: {$elemMatch: {challenge:"10x30"}}} ]}, {"challenges.$":1 } );
+            // it should be done with mongo, but the command only works in mongo shell but not here (it still returns all of them)
+            // e.g. db.tasks.findOne({userid:"bgDfMrfPw2vuRJJLY",challenges:{$elemMatch: {challenge:"10x30"}}}, {"challenges.$":1 });
             // so we just loop through all the challenges and pick the one we need
             var sheet;
             tasksheet.challenges.forEach(function(item){
@@ -29,6 +60,8 @@ Template.sheet.helpers({
                 }
             });
             sheet.userid = userid;
+            notes = sheet.notes;
+            curTheme = Session.get("theme");
             return {tasksheet:sheet,ready:true};
         }
     },
@@ -49,18 +82,10 @@ Template.sheet.helpers({
         var date = new Date(start);
         var enddate = date.addDays(maxDay-1).toDateString();
         return enddate;
-    },
-/*
-    isDeletable:function() {
-        var challenge = Session.get("challenge");
-        var userid = Session.get("userid");
-        // the user can delete his own challenge; admin can delete all challenges
-        // return (userid==Meteor.userId() || Roles.userIsInRole(Meteor.userId(),['admin']));
-
-        // the delete button should not appear for regular users, it's bad for the morale to see it all the time!
-        // if there will be a need, we'll think about it later.
-    } */
+    }
 });
+
+
 
 
 Template.sheet.events({
@@ -162,6 +187,7 @@ Template.sheet.events({
             }
         });
     }
+
 });
 
 
@@ -218,3 +244,41 @@ Template.editStart.events({
     $("#editstart").modal('hide');
 }
 });
+
+Template.dayHeader.events({
+    'click .day-header': function(e,t) {
+        e.preventDefault();
+ 
+        var day = $(e.currentTarget).attr("data-title"); // for some reason it doesn't read the 'title' attribute
+        var content = '';
+        if (notes && day in notes) content = notes[day];
+        // have to set them directly in DOM, because it doesn't work with the template helpers, 
+        // for some reason they are not getting called when the vars are updated
+        $("#dayNotesTitle").text(day);
+        $("#dayNotesContent").html(content);
+        $("#dayNotes").modal('show');
+    }
+});
+
+
+Template.notes.onRendered(function () {
+    $('.notes').notebook();
+});
+
+
+Template.notes.events({
+"click .close-notes":function(e,t) {
+    var op = $(e.target).attr("data-op"); 
+    if (op == 'save' && Session.get("userid") == Meteor.userId()) {
+        var day = $("#dayNotesTitle").text();
+        var content = $("#dayNotesContent").html();
+        Meteor.call("updateNotes",day,content,Session.get("challenge"), function(err,res) {
+            if (!err) {
+                notes[day] = content;
+            }
+        });
+    }
+    $('#dayNotes').modal('hide');
+}
+});
+

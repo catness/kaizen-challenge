@@ -165,12 +165,31 @@ updateStart: function(challenge, start) {
     var myset = {};
     myset["challenges.$.start"] = new Date(start).toDateString();
     myset["challenges.$.tasks"] = tasks;
+    if ("notes" in t.challenges[0]) {
+        myset["challenges.$.notes"] = t.challenges[0].notes;
+    }
     Tasks.update( { $and:[{userid:userid}, {challenges: {$elemMatch: {challenge:challenge }}} ]}, {$set:myset });
 //    Tasks.update( {$and: [ {userid:userid},{challenges: {$elemMatch: {challenge:challenge}}} ]}, {$set:{"challenges.$.title":title}} );
 
     //Tasks.update({userid:userid},{$set:{start: new Date(start).toDateString(),tasks:tasks}});
 },
-
+updateNotes: function(day, content, challenge) {
+    var userid = Meteor.userId();
+    content = content.trim();
+    console.log("Update notes for " + challenge + " : " + day + " length=" + content.length);
+    if (!Tasks.findOne( {userid:userid, challenges: {$elemMatch: {challenge:challenge}}} )) return;
+    var myset = {};
+    if (content.length > 0) {
+        myset["challenges.$.notes." + day] = content;
+        Tasks.update({userid:userid,challenges:{$elemMatch: {challenge:challenge}}}, {$set:myset});
+    }
+    else {
+        console.log("deleting note");
+        myset["challenges.$.notes." + day] = 1;
+        Tasks.update({userid:userid,challenges:{$elemMatch: {challenge:challenge}}}, {$unset:myset});
+    }
+    console.log("Notes updated!");
+},
 
 deleteChallenge: function(userid,challenge) {
     //if (!(userid==Meteor.userId() || Roles.userIsInRole(Meteor.userId(),['admin']))) {
