@@ -1,4 +1,5 @@
 Meteor.publish("Tasks", function () {
+    //Meteor._sleepForMs(5000); // simulate delay for 5 sec - for debugging
     return Tasks.find();
 });
 

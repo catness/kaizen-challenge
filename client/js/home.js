@@ -36,6 +36,9 @@ Template.home.events({
 });
 
 Template.home.helpers({
+    ready:function() {
+        return Session.get('ready');
+    },
     challengeExists:function(name){
         // returns true if this challenge is created for the logged in user
         var userid = Meteor.userId();

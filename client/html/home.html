@@ -24,7 +24,7 @@
 <div class="row hidden" id="please-wait">
 <div class="col-xs-12 col-lg-6">
     <div class="alert alert-info">
-      <strong>Challenge is being created, please wait...</strong>
+      <strong>Challenge is being created, please wait...</strong> {{> spinner}}
     </div>
 </div>
 </div>
@@ -32,6 +32,7 @@
 <div class="row">
 <div class="col-xs-12 col-lg-8">
 
+{{#if ready}}
 <div class="well">
 {{#if challengeExists "30x30"}}
 <a href="/challenge/30x30/{{username}}">30x30 challenge</a>
@@ -49,6 +50,10 @@
 {{/if}}
 
 </div>
+{{else}}
+<strong>Loading, please wait...</strong> {{> spinner}}
+{{/if}}
+
 
 </div>
 </div>
