@@ -29,47 +29,28 @@ var verifyUsername = function(username) {
 }
 
 Meteor.methods({
-createTasks: function(challenge) {
+createTasks: function(tasknum, date) {
     var userid = Meteor.userId();
     var username = Meteor.users.findOne({_id:userid},{fields:{'username':1}}).username;
-
-    if (Tasks.findOne( { $and:[{userid:userid}, {challenges: {$elemMatch: {challenge:challenge }}} ]} )) {
-        return;
+    var startTxt = moment(date).format('YYYY-MM-DD');
+    var challenge = "custom_" + startTxt;
+    console.log("create tasks for " + username + " tasks=" + tasknum + " start=" + startTxt + " date=" + date + " challenge=" + challenge);
+    if (Tasks.findOne( {userid:userid, challenges: {$elemMatch: {challenge:challenge}}})) { 
+        throw new Meteor.Error("createError", "Challenge already exists");
     }
-
-    var date;
-    var titleMain = username + "'s " + challenge + " challenge";
+    var titleMain = username + "'s " + tasknum + " habits challenge";
     var tasks = [];
-    switch (challenge) {
-    case '30x30':
-        for (var pos=0;pos<maxTask;pos++) {
-            var task = {title:"Task #"+(pos+1), description:"...", pos:pos};
-            task.days = makedays(null,0,maxDay);
-            tasks.push(task);
-        }
-        date = new Date();
-        break;
-    case '10x30':
-        var startTxt = '2016-03-01';
-        for (var pos=0;pos<10;pos++) {
-            var title = challenge_titles10x30[pos][0];  //challenges.js
-            var description = challenge_titles10x30[pos][1];
-            // id is the fixed id of the task used for reports later, in case the users will move the tasks around and rename them
-            // so we still know which task is which
-            var task = {title:title, description:description,pos:pos,id:pos};
-            task.days = makedays(startTxt,0,maxDay);
-            tasks.push(task);
-        }
-        date = new Date(startTxt);        
-        break;
+    for (var pos=0;pos<tasknum;pos++) {
+        var task = {title:"Task #"+(pos+1), description:"...", pos:pos};
+        task.days = makedays(startTxt,0,maxDay);
+        tasks.push(task);
     }
-
     if (!Tasks.findOne({userid:userid})) {
         // insert empty tasks record (not sure if update would insert it)
         Tasks.insert({userid:userid}); 
     }
     Tasks.update({userid:userid}, 
-        {$addToSet:{challenges: {challenge:challenge,start:  date.toDateString(), title:titleMain,  tasks:tasks }}} );
+        {$addToSet:{challenges: {challenge:challenge,start: date.toDateString(), title:titleMain,  tasks:tasks }}} );
 
 //    Tasks.insert( {userid:userid, start:date.toDateString(), title:title,  tasks:tasks } );
     return;

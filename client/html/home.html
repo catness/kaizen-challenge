@@ -1,5 +1,7 @@
 <template name="home">
 
+{{> joinChallenge}} <!-- modal for creating a custom challenge -->
+
 <div class="container-fluid">
 
 {{#if isDevelopment}}
@@ -40,7 +42,7 @@
 <p><strong>Go to challenge: </strong> <a href="/challenge/{{challenge}}/{{currentUser.username}}">{{title}}</a> </p>
 {{/each}}
 
-<button class="join-challenge btn btn-success" data-challenge="30x30">Create your own Kaizen challenge</button>
+<button class="join-challenge btn btn-success">Create your own Kaizen challenge</button>
 
 </div>
 {{else}}

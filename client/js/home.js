@@ -1,4 +1,3 @@
-
 var displayMessageTimer; // for display messages that clear after a specified timeout
 
 setDisplayMessage = function(message) {
@@ -21,17 +20,18 @@ Template.home.events({
             Router.go('/login');
             return;
         }
-        var challenge=$(e.target).attr("data-challenge"); // name of the service
-        $("#please-wait").removeClass('hidden');
-        Meteor.call("createTasks", challenge, function(err,result) {
-            if (err) {
-                console.log("error creating challenge");
-                $("#please-wait").addClass('hidden');
-                return;
-            }
-            $("#please-wait").addClass('hidden');
-            Router.go("/challenge/"+challenge+'/'+Meteor.user().username);
+        var date = new Date();
+        var year = date.getFullYear();
+        var mon = date.getMonth();
+        var day = date.getDay();
+        $('#start').val(moment(date).format('YYYY-MM-DD'));
+        $('.input-group.date').datepicker( {
+            format: "yyyy-mm-dd",
+            startDate: "2016-01-01",
+            todayBtn: "linked",
+            defaultViewDate: {year:year, month:mon,day:day}
         });
+        $("#joinchallenge").modal('show');
     }
 });
 
@@ -50,3 +50,35 @@ Template.home.helpers({
         return user.username;
     }
 });
+
+Template.joinChallenge.helpers({
+    // ugh is there a better way to make a fixed range loop in Spacebars?
+    numtasks:function() {
+        var foo = [];
+        for (var i = 3; i <= 30; i++) {
+            foo.push(i);
+        }
+        return foo;    
+    }
+});
+
+Template.joinChallenge.events({
+    'submit #joinchallenge': function(e) {
+        e.preventDefault();
+        var tasknum = $(e.target).find('[name=tasknum]').val();
+        var start = $(e.target).find('[name=start]').val().trim();
+        var date = new Date (Date.parse(start));
+        console.log("joinchallenge submit: tasknum = " + tasknum + " start=" + start);
+        $("#joinchallenge").modal('hide');
+        $("#please-wait").removeClass('hidden');
+        Meteor.call("createTasks", tasknum, date, function(err,challenge) {
+            if (err) {
+                console.log("error creating challenge");
+                setDisplayMessage(err["reason"]);
+            }
+            $("#please-wait").addClass('hidden');
+        });        
+    }
+});
+
+

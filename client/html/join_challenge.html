@@ -1,0 +1,56 @@
+<template name="joinChallenge">
+
+<div class="modal fade" id="joinchallenge">
+<div class="modal-dialog">
+<div class="modal-content">
+    <div class="modal-header">
+        <div class="modal-title">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h2 class="modal-title">Create your challenge</h2>
+        </div>
+    </div> <!-- end modal-header -->
+    <div class="modal-body">    
+    <form id="edit_title" class="form-horizontal">
+      <div class="form-group">
+        <label class="col-xs-3 control-label" for="tasknum">Number of tasks</label>
+        <div class="col-xs-9">
+        <select name="tasknum" id="tasknum">
+        <option value="10" selected>10</option>
+        <option disabled>──────────</option>
+        {{#each numtasks}}
+        <option value="{{this}}">{{this}}</option>
+        {{/each}}
+        </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="col-xs-3 control-label" for="start">Start</label>
+        <div class="col-xs-9">
+        <div class="input-group date">
+        <input type="text" class="form-control" name="start" id="start">
+        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+        </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+      <div class="col-xs-9 col-xs-offset-3">
+      <div id="website_form_progress" class="alert alert-info" role="alert">
+      You will be able to modify the number of tasks and starting date later.
+      </div>
+      </div>
+      </div>
+
+      <div class="form-group">
+      <div class="col-xs-9 col-xs-offset-3">
+      <button type="submit" class="btn btn-success">Go ahead!</button>
+      <button type="button" class="btn btn-default" data-dismiss="modal">Chicken out</button>
+      </div>
+      </div>
+    </form>
+    </div> <!-- modal-body -->
+</div> <!-- modal-content -->
+</div> <!-- modal-dialog -->
+</div> <!-- modal -->
+</template>
