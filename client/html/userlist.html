@@ -11,7 +11,7 @@
 <table class="table user-list">
 <thead>
 <tr>
-<th>USER</th><th>JOINED</th><th>LAST LOGIN</th><th>30x30</th><th>10x30</th>
+<th>USER</th><th>JOINED</th><th>LAST LOGIN</th><th>LAST CHALLENGE</th>
 </tr>
 </thead>
 <tbody>
@@ -33,15 +33,9 @@
 </td>
 
 <td>
-{{#if challengeExists this._id "30x30"}}
-<a href="/challenge/30x30/{{username}}">30x30 challenge</a>
-{{/if}}
-</td>
-
-<td>
-{{#if challengeExists this._id "10x30"}}
-<a href="/challenge/10x30/{{username}}">10x30 challenge</a>
-{{/if}}
+{{#with lastChallenge this._id}}
+<a href="/challenge/{{challenge}}/{{../username}}">{{title}}</a>
+{{/with}}
 </td>
 
 </tr>

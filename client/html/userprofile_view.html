@@ -11,12 +11,11 @@
                   <h2>{{profile.name}}</h2>
                   <p><strong>About: </strong> {{profile.bio}} </p>
                   <p><strong>Home: </strong> {{profile.homepage}} </p>
-                  {{#if challengeExists "30x30" _id}}
-                  <p><strong>Challenge 30x30: </strong> <a href="/challenge/30x30/{{username}}">30x30 days</a> </p>
-                  {{/if}}
-                  {{#if challengeExists "10x30" _id}}
-                  <p><strong>Challenge 10x30: </strong> <a href="/challenge/10x30/{{username}}">10x30 days</a> </p>
-                  {{/if}}
+
+                  {{#each challenges _id}}
+                  <p><strong>Challenge: </strong> <a href="/challenge/{{challenge}}/{{../username}}">{{title}}</a> </p>
+                  {{/each}}
+
                   <p><strong>Last login:</strong> {{lastLogin}}</p>
 
               </div><!--/col-->          

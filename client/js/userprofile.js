@@ -206,9 +206,9 @@ Template.userProfile.helpers({
     user.isEditable = (user._id == Meteor.userId());
     return user;
   },
-  challengeExists: function(challenge, userid) {
-    var ret = (Tasks.findOne( {userid:userid, challenges: {$elemMatch: {challenge:challenge} }} ))?true:false;
-    return ret;
+  challenges: function(userid) {
+    var challenges = Tasks.findOne( {userid:userid} ).challenges;
+    return challenges;
   }
 });
 

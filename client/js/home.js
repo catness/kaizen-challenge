@@ -39,15 +39,11 @@ Template.home.helpers({
     ready:function() {
         return Session.get('ready');
     },
-    challengeExists:function(name){
-        // returns true if this challenge is created for the logged in user
+    challenges: function() {
         var userid = Meteor.userId();
         if (!userid) return false;
-        var tasks = Tasks.findOne( { $and:[{userid:userid}, {challenges: {$elemMatch: {challenge:name }}} ]} );
-        if (tasks) {
-            return true;
-        }
-        return false;
+        var challenges = Tasks.findOne( {userid:userid} ).challenges;
+        return challenges;
     },
     username:function() {
         var user = Meteor.user();

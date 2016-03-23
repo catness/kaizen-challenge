@@ -15,8 +15,10 @@ Template.allUserData.helpers({
     }).fetch();
     return users;
   },
-  challengeExists: function(userid,challenge) {
-    return (Tasks.findOne( {userid:userid, challenges: {$elemMatch: {challenge:challenge}}} ))?true:false;
+  lastChallenge: function(userid) {
+    var challenges = Tasks.findOne( {userid:userid} ).challenges;
+    var last = challenges.pop();
+    return last;
   }
 })
 // this is how to find the challenges the user participates in
