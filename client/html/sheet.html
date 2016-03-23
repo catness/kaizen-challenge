@@ -9,8 +9,9 @@ to get a callback when they are all actually rendered. -->
 {{/each}}
 </template>
 
-
 <template name="sheet">
+{{#if Template.subscriptionsReady}}
+
 {{> editTask}}
 {{> editTitle}}
 {{> editStart}}
@@ -84,7 +85,9 @@ type="button" class="btn btn-warning">Delete this challenge</button>
 {{#if result.ready}}
 This challenge sheet does not exist for this user.
 {{else}}
+
 Please wait for the challenge sheet to load...
+
 {{/if}}
 </h1>
 
@@ -104,4 +107,7 @@ Please wait for the challenge sheet to load...
 {{> footer footerclass="navbar-fixed-bottom"}}
 {{/if}}
 
+{{else}} <!-- template subscription ready -->
+<strong>Loading, please wait...</strong> {{> spinner}}
+{{/if}} <!-- template subscription ready -->
 </template>

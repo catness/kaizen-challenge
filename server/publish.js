@@ -1,6 +1,22 @@
 Meteor.publish("Tasks", function () {
     //Meteor._sleepForMs(5000); // simulate delay for 5 sec - for debugging
-    return Tasks.find();
+    //return Tasks.find();
+    return Tasks.find({},{fields:{userid:1, "challenges.challenge":1}}); // return only the challenge names, for the users list
+});
+
+Meteor.publish("Challenges", function(userid,challenge) {
+  console.log("publish challenge for " + userid + " " + challenge);
+
+  /* define a client-only collection using an undocumented function _publishCursor
+  because otherwise there's no way to add more fields (challenges contents) to the same collection
+  after publishing a few fields previously (in publish Tasks). (Meteor limitation!!)
+  */
+  var self = this;
+  var query = Tasks.find( {userid:userid, challenges: {$elemMatch: {challenge:challenge }}} , {fields:{userid:1,"challenges.$":1 }}  );
+//  console.log(JSON.stringify(Tasks.findOne({userid:userid, challenges: {$elemMatch: {challenge:challenge }} }  , {fields:{userid:1,"challenges.$":1 }}  )));
+  Mongo.Collection._publishCursor(query, self, "challenges");
+  return self.ready();
+
 });
 
 Meteor.publish("userData", function() {
@@ -32,7 +48,10 @@ Meteor.publish("userData", function() {
 Meteor.publish("allUserData", function () {
 	// data that all users can see (goes to Meteor.users)
 	if ( !this.userId ) {
-		return;
+    // to allow seeing the challenge sheets for non-logged in users
+    return Meteor.users.find({}, {fields: {
+        "username": 1
+    }});    
 	}	
 
   if (Roles.userIsInRole(this.userId, ['admin'])) {

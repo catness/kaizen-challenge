@@ -16,7 +16,7 @@ Template.allUserData.helpers({
     return users;
   },
   challengeExists: function(userid,challenge) {
-    return (Tasks.findOne( { $and:[{userid:userid}, {challenges: {$elemMatch: {challenge:challenge }}} ]} ))?true:false;
+    return (Tasks.findOne( {userid:userid, challenges: {$elemMatch: {challenge:challenge}}} ))?true:false;
   }
 })
 // this is how to find the challenges the user participates in

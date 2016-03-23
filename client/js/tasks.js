@@ -28,40 +28,44 @@ Template.dayHeader.helpers({
         return "";    
     }   
 });
+
+Template.sheet.onCreated(function(){
+    var self = this;
+    self.autorun(function(){
+        console.log("Subscribe to challenge " + Session.get("userid") + " " + Session.get("challenge"));
+        self.subscribe("Challenges",Session.get("userid"),Session.get("challenge"));
+    })
+});
+
  
 Template.sheet.helpers({
     result:function() {
         // wrapping tasksheet in a special "result" object to distinguish between the case when the user is not logged in
         // and when the database is still loading
+        console.log("sheet start");
         var userid = Session.get("userid");
         if (!userid) {
             console.log("Userid not defined");
             return null;
         }
         var challenge = Session.get("challenge");
-        if (!Session.get("ready")) {
-            console.log("DB not ready");
-            return {tasksheet:null,ready:false};
+        if (!challenge) {
+            console.log("Challenge not defined");
+            return null;            
         }
-        var tasksheet = Tasks.findOne( {userid:userid, challenges: {$elemMatch: {challenge:challenge }}});
+        //var tasksheet = Challenges.findOne( {userid:userid, challenges: {$elemMatch: {challenge:challenge }}} );
+        var tasksheet = Challenges.findOne({userid:userid}); // it is already with the challenge:challenge 
+        // that's how it's published on the server. If there's no challenge:challenge for this user, it will return null
+        //console.log("tasksheet = " + JSON.stringify(tasksheet));
         if (!tasksheet) {
             return {tasksheet:null,ready:true};
         }
         else {
-            // select the challenge with the name 'challenge'
-            // it should be done with mongo, but the command only works in mongo shell but not here (it still returns all of them)
-            // e.g. db.tasks.findOne({userid:"bgDfMrfPw2vuRJJLY",challenges:{$elemMatch: {challenge:"10x30"}}}, {"challenges.$":1 });
-            // so we just loop through all the challenges and pick the one we need
-            var sheet;
-            tasksheet.challenges.forEach(function(item){
-                if (item.challenge == challenge) {
-                    sheet = item;
-                    return;
-                }
-            });
+            var sheet = tasksheet.challenges[0]; // always exists because it's the only one element returned by the server
             sheet.userid = userid;
             notes = sheet.notes;
             curTheme = Session.get("theme");
+            //console.log("sheet = " + JSON.stringify(sheet));
             return {tasksheet:sheet,ready:true};
         }
     },

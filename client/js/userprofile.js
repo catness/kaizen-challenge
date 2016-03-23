@@ -207,7 +207,7 @@ Template.userProfile.helpers({
     return user;
   },
   challengeExists: function(challenge, userid) {
-    var ret = (Tasks.findOne( { $and:[{userid:userid}, {challenges: {$elemMatch: {challenge:challenge }}} ]} ))?true:false;
+    var ret = (Tasks.findOne( {userid:userid, challenges: {$elemMatch: {challenge:challenge} }} ))?true:false;
     return ret;
   }
 });
