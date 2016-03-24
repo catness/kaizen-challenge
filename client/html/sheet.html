@@ -51,10 +51,10 @@ to get a callback when they are all actually rendered. -->
     <tr>
     <td>
     <div class="taskname">
-    <a class="js-taskname" href="#" data-toggle="tooltip"  id="t_{{@index}}" title="{{description}}">{{title}}</a>
+    <a class="js-taskname" href="#" data-toggle="tooltip"  data-id="{{@index}}" title="{{description}}">{{title}}</a>
     <span class="taskmove">
-    <a href="#" class="btn btn-default btn-xs js-pos" id="up_{{@index}}"><i class="fa fa-arrow-up"></i> </a> 
-    <a href="#" class="btn btn-default btn-xs js-pos" id="down_{{@index}}"><i class="fa fa-arrow-down"></i> </a>
+    <a href="#" class="btn btn-default btn-xs js-pos" data-dir="up" data-id="{{@index}}"><i class="fa fa-arrow-up"></i> </a> 
+    <a href="#" class="btn btn-default btn-xs js-pos" data-dir="down" data-id="{{@index}}"><i class="fa fa-arrow-down"></i> </a>
     {{#if canDeleteTask}}
     &nbsp; &nbsp; 
     <a href="#" class="btn btn-default btn-xs js-del" data-id="{{@index}}" data-title="{{title}}"><i class="fa fa-trash"></i> </a>
@@ -67,7 +67,7 @@ to get a callback when they are all actually rendered. -->
     {{#each days}}
     <td class="{{getColumnClass day}}">
     <div class="checkbox {{getCheckboxClass value}}">
-    <input type="checkbox" id="c_{{taskindex}}_{{@index}}" class="styled js-checkbox" checked="{{isChecked value}}">
+    <input type="checkbox" data-id="{{taskindex}}" data-dayid="{{@index}}" class="styled js-checkbox" checked="{{isChecked value}}">
     <label></label></div>
     </td>
     {{/each}}

@@ -109,10 +109,8 @@ Template.sheet.events({
         if (userid != Meteor.userId()) return false; // this timesheet doesn't belong to the logged user
         var challenge = Session.get("challenge");
         var checked = $(e.target).is(":checked")?1:0;
-        var id = $(e.target).attr('id');
-        var splitted = id.split('_');
-        var taskid = splitted[1];
-        var dayid = splitted[2];
+        var taskid = $(e.target).attr("data-id");
+        var dayid = $(e.target).attr("data-dayid");
         var parent = $(e.target).parent().closest('div');
         var classes = parent.attr('class');
 
@@ -124,7 +122,8 @@ Template.sheet.events({
                // turn on error!
                 checked = -1; // the value of failed task
                 $(parent).removeClass('checkbox-success').addClass('checkbox-danger');
-                $('#'+id).prop('checked', true); // turn the checkmark back on 
+               //$('#'+id).prop('checked', true); // turn the checkmark back on 
+                $(e.target).prop('checked', true); // turn the checkmark back on 
             }
         }
         else { // current class is danger
@@ -140,10 +139,9 @@ Template.sheet.events({
     'click .js-taskname': function(e) {
         // open modal to edit the task name & description
         if (Session.get("userid") != Meteor.userId()) return false;
-        var splitted = $(e.target).attr('id').split('_');
-        var taskid = splitted[1];
-        var description = $(e.target).attr('title'); //tooltip
-        var title = $(e.target).text();
+        var taskid = $(e.currentTarget).attr("data-id");
+        var description = $(e.currentTarget).attr('title'); //tooltip
+        var title = $(e.currentTarget).text();
         $("#title").val(title);
         $("#description").val(description);
         $("#pos").val(taskid); //current position
@@ -162,9 +160,8 @@ Template.sheet.events({
     'click .js-pos': function(e) {
         // move the task up or down
         if (Session.get("userid") != Meteor.userId()) return false;
-        var splitted = $(e.currentTarget).attr('id').split('_');
-        var dir = splitted[0]; // up or down
-        var taskid = splitted[1];
+        var dir = $(e.currentTarget).attr("data-dir");
+        var taskid = $(e.currentTarget).attr("data-id");
         var challenge = Session.get("challenge");
         Meteor.call('moveTask', challenge, taskid, dir);
     },
@@ -173,7 +170,6 @@ Template.sheet.events({
         if (Session.get("userid") != Meteor.userId()) return false;
         var taskid = $(e.currentTarget).attr("data-id");
         var title = $(e.currentTarget).attr("data-title");
-        console.log("delete task " + taskid + " " + title);
         sweetAlert({
           title: "Are you sure?",
           text: "Deleting the task " + title + ". This can not be undone!",
@@ -185,7 +181,6 @@ Template.sheet.events({
           html: false
         }, function(){
             var challenge = Session.get("challenge");
-            console.log("Really deleting the task " + taskid + " " + title);
             Meteor.call('deleteTask', challenge, taskid, function(err,res) {
                 sweetAlert("Deleted!",
                 "Your task has been deleted.",
