@@ -35,7 +35,7 @@ createTasks: function(tasknum, date) {
     var startTxt = moment(date).format('YYYY-MM-DD');
     var challenge = "custom_" + startTxt;
     console.log("create tasks for " + username + " tasks=" + tasknum + " start=" + startTxt + " date=" + date + " challenge=" + challenge);
-    if (Tasks.findOne( {userid:userid, challenges: {$elemMatch: {challenge:challenge}}})) { 
+    if (Tasks.findOne( {userid:userid, challenge:challenge})) { 
         throw new Meteor.Error("createError", "Challenge already exists");
     }
     var titleMain = username + "'s " + tasknum + " habits challenge";
@@ -45,83 +45,69 @@ createTasks: function(tasknum, date) {
         task.days = makedays(startTxt,0,maxDay);
         tasks.push(task);
     }
-    if (!Tasks.findOne({userid:userid})) {
-        // insert empty tasks record (not sure if update would insert it)
-        Tasks.insert({userid:userid}); 
-    }
-    Tasks.update({userid:userid}, 
-        {$addToSet:{challenges: {challenge:challenge,start: date.toDateString(), title:titleMain,  tasks:tasks }}} );
-
-//    Tasks.insert( {userid:userid, start:date.toDateString(), title:title,  tasks:tasks } );
-    return;
+    // timestamp (unix timestamp) needed to sort by date on the client: minimongo doesn't support sorting by date
+    Tasks.insert({userid:userid, challenge:challenge, start:date.toDateString(), timestamp:moment(date).unix(),
+        title:titleMain, tasks:tasks });
 },
 checkbox: function(challenge, taskid, dayid, checked) {
     var userid = Meteor.userId();
-    if (!Tasks.findOne( { $and:[{userid:userid}, {challenges: {$elemMatch: {challenge:challenge }}} ]} )) return;
-    var field = "challenges.$.tasks."+taskid+".days."+dayid+".value";
+    //if (!Tasks.findOne({userid:userid,challenge:challenge})) return;
+    var field = "tasks."+taskid+".days."+dayid+".value";
     var myset = {};  // workaround to use variables as keys
     myset[field] = checked;
-    //Tasks.update({userid:userid},{$set:myset });
-    Tasks.update( {$and: [ {userid:userid},{challenges: {$elemMatch: {challenge:challenge}}} ]}, {$set:myset} );
+    Tasks.update({userid:userid,challenge:challenge},{$set:myset});
 },
 updateTitle: function(challenge, title) {
     var userid = Meteor.userId();
-    if (!Tasks.findOne( { $and:[{userid:userid}, {challenges: {$elemMatch: {challenge:challenge }}} ]} )) return;
-    Tasks.update( {$and: [ {userid:userid},{challenges: {$elemMatch: {challenge:challenge}}} ]}, {$set:{"challenges.$.title":title}} );
+    //if (!Tasks.findOne({userid:userid,challenge:challenge})) return;
+    Tasks.update({userid:userid,challenge:challenge},{$set:{title:title}});
 },
 updateTask: function(challenge, taskid, title, description) {
     var userid = Meteor.userId();
-    if (!Tasks.findOne( { $and:[{userid:userid}, {challenges: {$elemMatch: {challenge:challenge }}} ]} )) return;
+    //if (!Tasks.findOne({userid:userid,challenge:challenge})) return;
     var myset = {};
-    myset["challenges.$.tasks." + taskid +".title"] = title;
-    myset["challenges.$.tasks." + taskid +".description"] = description;
-    Tasks.update( {$and: [ {userid:userid},{challenges: {$elemMatch: {challenge:challenge}}} ]}, {$set:myset} );
+    myset["tasks." + taskid +".title"] = title;
+    myset["tasks." + taskid +".description"] = description;
+    Tasks.update({userid:userid,challenge:challenge},{$set:myset});
 },
 moveTask: function(challenge, taskid, dir) {
     var userid = Meteor.userId();
-    if (!Tasks.findOne( { $and:[{userid:userid}, {challenges: {$elemMatch: {challenge:challenge }}} ]} )) return;
+    var mychallenge = Tasks.findOne({userid:userid,challenge:challenge});
+    if (!mychallenge) return;
     
-    var mychallenge = Tasks.findOne( { $and:[{userid:userid}, {challenges: {$elemMatch: {challenge:challenge }}} ]},{fields:{'challenges.$':1}});
-    var maxTask = mychallenge.challenges[0].tasks.length;
-
+    taskid = parseInt(taskid);
+    var maxTask = mychallenge.tasks.length;
     if (dir != 'up' && dir != 'down') return; 
     if (taskid == 0 && dir == 'up') return;
     if (taskid == maxTask-1 && dir == 'down') return;
     // swap the current task with the task in a desired position (up or down)
     // would be better to drag & drop, eventually
  
-    var row = mychallenge.challenges[0].tasks[parseInt(taskid)];
-    taskid = parseInt(taskid);
+    var row = mychallenge.tasks[taskid];
     var newpos = (dir == 'up')?taskid-1 : taskid+1;
-
-//    var row1 = Tasks.findOne({userid:userid,"tasks.pos":newpos}, {fields:{'tasks.$':1}});
-    var row1 = mychallenge.challenges[0].tasks[newpos];
+    var row1 = mychallenge.tasks[newpos];
 
     var myset = {};
-    myset["challenges.$.tasks."+taskid+".title"] = row1.title;
-    myset["challenges.$.tasks."+taskid+".description"] = row1.description;
-    myset["challenges.$.tasks."+taskid+".days"] = row1.days;
+    myset["tasks."+taskid+".title"] = row1.title;
+    myset["tasks."+taskid+".description"] = row1.description;
+    myset["tasks."+taskid+".days"] = row1.days;
     // not every challenge has immutable ids, so we have to check if this key exists
-    if ("id" in row1) myset["challenges.$.tasks."+taskid+".id"] = row1.id;
+    if ("id" in row1) myset["tasks."+taskid+".id"] = row1.id;
 
-//    Tasks.update({userid:userid},{$set:myset });
-    Tasks.update( { $and:[{userid:userid}, {challenges: {$elemMatch: {challenge:challenge }}} ]}, {$set:myset });
+    Tasks.update({userid:userid,challenge:challenge},{$set:myset});
 
-    myset["challenges.$.tasks."+newpos+".title"] = row.title;
-    myset["challenges.$.tasks."+newpos+".description"] = row.description;
-    myset["challenges.$.tasks."+newpos+".days"] = row.days;
-    if ("id" in row1) myset["challenges.$.tasks."+newpos+".id"] = row.id;
-    //Tasks.update({userid:userid},{$set:myset });
-    Tasks.update( { $and:[{userid:userid}, {challenges: {$elemMatch: {challenge:challenge }}} ]}, {$set:myset });
-
+    myset["tasks."+newpos+".title"] = row.title;
+    myset["tasks."+newpos+".description"] = row.description;
+    myset["tasks."+newpos+".days"] = row.days;
+    if ("id" in row1) myset["tasks."+newpos+".id"] = row.id;
+    Tasks.update({userid:userid,challenge:challenge},{$set:myset});
 },
 updateStart: function(challenge, start) {
     var userid = Meteor.userId();
-
-    var t = Tasks.findOne( { $and:[{userid:userid}, {challenges: {$elemMatch: {challenge:challenge }}} ]}, {fields:{'challenges.$':1}});
+    var t = Tasks.findOne({userid:userid,challenge:challenge});
     if (!t) return;
-    var tasks = t.challenges[0].tasks;
-    var current = t.challenges[0].start;
+    var tasks = t.tasks;
+    var current = t.start;
     var diff = dateDiffInDays(new Date(start), new Date(current));
     if (diff==0) return;
     var maxTask = tasks.length;
@@ -144,30 +130,29 @@ updateStart: function(challenge, start) {
         }
     }
     var myset = {};
-    myset["challenges.$.start"] = new Date(start).toDateString();
-    myset["challenges.$.tasks"] = tasks;
-    if ("notes" in t.challenges[0]) {
-        myset["challenges.$.notes"] = t.challenges[0].notes;
+    var date = new Date(start);
+    myset["start"] = date.toDateString();
+    myset["timestamp"] = moment(date).unix();
+    myset["tasks"] = tasks;
+    if ("notes" in t) {
+        myset["notes"] = t.notes;
     }
-    Tasks.update( { $and:[{userid:userid}, {challenges: {$elemMatch: {challenge:challenge }}} ]}, {$set:myset });
-//    Tasks.update( {$and: [ {userid:userid},{challenges: {$elemMatch: {challenge:challenge}}} ]}, {$set:{"challenges.$.title":title}} );
-
-    //Tasks.update({userid:userid},{$set:{start: new Date(start).toDateString(),tasks:tasks}});
+    Tasks.update({userid:userid,challenge:challenge}, {$set:myset});
 },
 updateNotes: function(day, content, challenge) {
     var userid = Meteor.userId();
     content = content.trim();
     console.log("Update notes for " + challenge + " : " + day + " length=" + content.length);
-    if (!Tasks.findOne( {userid:userid, challenges: {$elemMatch: {challenge:challenge}}} )) return;
+    //if (!Tasks.findOne({userid:userid,challenge:challenge})) return;
     var myset = {};
     if (content.length > 0) {
-        myset["challenges.$.notes." + day] = content;
-        Tasks.update({userid:userid,challenges:{$elemMatch: {challenge:challenge}}}, {$set:myset});
+        myset["notes." + day] = content;
+        Tasks.update({userid:userid,challenge:challenge}, {$set:myset});
     }
     else {
         console.log("deleting note");
-        myset["challenges.$.notes." + day] = 1;
-        Tasks.update({userid:userid,challenges:{$elemMatch: {challenge:challenge}}}, {$unset:myset});
+        myset["notes." + day] = 1;
+        Tasks.update({userid:userid,challenge:challenge}, {$unset:myset});
     }
     console.log("Notes updated!");
 },
@@ -178,9 +163,7 @@ deleteChallenge: function(userid,challenge) {
         throw new Meteor.Error("deleteError", "Not authorized to delete this challenge");
     }
     else {
-        Tasks.update( { $and:[{userid:userid}, {challenges: {$elemMatch: {challenge:challenge }}} ]}, {$unset:{"challenges.$":1} });
-        // $unset leaves null in place of the deleted element, so we have to delete the remaining null too
-        Tasks.update({userid:userid}, {$pull:{challenges:null}} ); 
+        Tasks.remove({userid:userid,challenge:challenge});
     }
 },
 

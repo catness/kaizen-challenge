@@ -11,18 +11,16 @@ Template.allUserData.helpers({
     var users = Meteor.users.find({}, {
       limit: recordsPerPage,
       skip: skipCount,
-      sort: {"lastLogin":-1,"profile.name":1}
+      sort: {"lastLogin":-1} // no need to sort also by name because lastLogin is in secs => different for everyone
     }).fetch();
     return users;
   },
   lastChallenge: function(userid) {
-    var challenges = Tasks.findOne( {userid:userid} ).challenges;
-    var last = challenges.pop();
+    //var last = Tasks.findOne({userid:userid},{$orderby:{timestamp:-1}}); // doesn't work: orderby is ignored
+    var last = Tasks.findOne({userid:userid},{sort:{timestamp:-1},limit:1});
     return last;
   }
 })
-// this is how to find the challenges the user participates in
-// db.tasks.findOne( {userid:"LhvQT5xH78ytZ4Lqx"}, {"challenges.challenge":1});
 
 var hasMorePages = function() {
   var totalCount = Session.get('totalCount');

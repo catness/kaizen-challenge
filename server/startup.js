@@ -67,12 +67,12 @@ Meteor.startup(function() {
 		Meteor.users.update({_id:admin._id},{$set:{hidden:true}});
 	}
 
-	Tasks._ensureIndex({userid:1});
-	Tasks._ensureIndex({"challenges.challenge":1});
 	// convert old db to the new format (needed only once)
 	migration();
 
-	console.log("ROOT_URL = " + process.env.ROOT_URL); 
+	Tasks._ensureIndex({userid:1});
+	Tasks._ensureIndex({challenge:1});
 
+	console.log("ROOT_URL = " + process.env.ROOT_URL); 
 
 });

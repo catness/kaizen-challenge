@@ -39,10 +39,10 @@
 
 
 {{#each challenges _id}}
-<p><strong>Go to challenge: </strong> <a href="/challenge/{{challenge}}/{{currentUser.username}}">{{title}}</a> </p>
+<p><strong>Go to challenge: </strong> <a href="/challenge/{{challenge}}/{{currentUser.username}}">{{title}} {{start}}</a> </p>
 {{/each}}
 
-<button class="join-challenge btn btn-success">Create your own Kaizen challenge</button>
+<button class="join-challenge btn btn-success">Create your own challenge</button>
 
 </div>
 {{else}}

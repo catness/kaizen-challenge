@@ -13,7 +13,8 @@
                   <p><strong>Home: </strong> {{profile.homepage}} </p>
 
                   {{#each challenges _id}}
-                  <p><strong>Challenge: </strong> <a href="/challenge/{{challenge}}/{{../username}}">{{title}}</a> </p>
+                  <p><strong>Challenge: </strong> 
+                  <a href="/challenge/{{challenge}}/{{../username}}">{{title}} ({{start}})</a> </p>
                   {{/each}}
 
                   <p><strong>Last login:</strong> {{lastLogin}}</p>

@@ -53,20 +53,17 @@ Template.sheet.helpers({
             console.log("Challenge not defined");
             return null;            
         }
-        //var tasksheet = Challenges.findOne( {userid:userid, challenges: {$elemMatch: {challenge:challenge }}} );
-        var tasksheet = Challenges.findOne({userid:userid}); // it is already with the challenge:challenge 
-        // that's how it's published on the server. If there's no challenge:challenge for this user, it will return null
+        var tasksheet = Challenges.findOne({userid:userid,challenge:challenge});
+        // Challenges are published by the server for userid and challenge
         //console.log("tasksheet = " + JSON.stringify(tasksheet));
         if (!tasksheet) {
             return {tasksheet:null,ready:true};
         }
         else {
-            var sheet = tasksheet.challenges[0]; // always exists because it's the only one element returned by the server
-            sheet.userid = userid;
-            notes = sheet.notes;
+            tasksheet.userid = userid;
+            notes = tasksheet.notes;
             curTheme = Session.get("theme");
-            //console.log("sheet = " + JSON.stringify(sheet));
-            return {tasksheet:sheet,ready:true};
+            return {tasksheet:tasksheet,ready:true};
         }
     },
     getCheckboxClass:function(val) {
@@ -127,7 +124,6 @@ Template.sheet.events({
                 $(parent).removeClass('checkbox-danger').addClass('checkbox-success');    
             }
         }
-
         Meteor.call('checkbox', challenge, taskid, dayid, checked);
     },
     'click .js-taskname': function(e) {

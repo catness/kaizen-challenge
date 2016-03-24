@@ -42,7 +42,7 @@ Template.home.helpers({
     challenges: function() {
         var userid = Meteor.userId();
         if (!userid) return false;
-        var challenges = Tasks.findOne( {userid:userid} ).challenges;
+        var challenges = Tasks.find({userid:userid});
         return challenges;
     },
     username:function() {

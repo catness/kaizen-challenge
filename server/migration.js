@@ -2,33 +2,30 @@
 
 migration = function() {
 	console.log("Migration ... ");
-/*  Done on 2016-02-26
 
 	var users = Meteor.users.find({});
-	var challenge = "30x30";
 	users.forEach(function(user){
 		var userid = user._id;
-		if (!("lastLogin" in user)) {
-			console.log("update " + userid + " add lastLogin=" + user.createdAt);
-			Meteor.users.update({_id:userid},{$set:{lastLogin:user.createdAt}});
-		}
-		if (!("hidden" in user)) {
-			console.log("update " + userid + " add hidden");
-			Meteor.users.update({_id:userid},{$set:{hidden:false}});
-		}
-		if (!(user.profile.name)) {
-			console.log("update " + userid + " add name=" + user.username);
-			Meteor.users.update({_id:userid},{$set:{"profile.name":user.username}});
-		}
-		var tasks = Tasks.findOne({userid:userid},{fields:{title:1,start:1,tasks:1}});
-		if (tasks && ("title" in tasks)) { // old-format challenge exists
-			// if new format challenge doesn't exist
-			if (Tasks.findOne( { $and:[{userid:userid}, {challenges: {$elemMatch: {challenge:challenge }}} ]} )) return; 
-			console.log("convert old 30x30 challenge for " + userid);
-			Tasks.update({userid:userid}, 
-	        {$addToSet:{challenges: {challenge:challenge,start:tasks.start, title:tasks.title, tasks:tasks.tasks }}} );
-	        Tasks.update({userid:userid},{$unset: {title:1,start:1,tasks:1} } ); // delete the old challenge
-		}
+		var username = user.username;
+		var tasks = Tasks.find({userid:userid});
+		console.log("\n" + userid + " " + username);
+		tasks.forEach(function(task){
+			if (!("challenges" in task)) return; // new task entry
+			// copy all the old challenges to the new format
+			task.challenges.forEach(function(ch){
+				if (!Tasks.findOne({userid:userid,challenge:ch.challenge})) {
+					console.log("Adding " + ch.challenge + " " + ch.title + " " + ch.start);
+					var timestamp = moment(new Date(ch.start)).unix();
+					var myset = {userid:userid, challenge:ch.challenge, title:ch.title, 
+						start:ch.start, timestamp:timestamp, tasks:ch.tasks};
+					if (ch.notes) myset["notes"] = ch.notes;
+					Tasks.insert(myset);
+				}
+			});
+			// remove the old entry
+			console.log("Removing " + task._id);
+			Tasks.remove({_id:task._id});
+		});
 	});
-*/
+
 }

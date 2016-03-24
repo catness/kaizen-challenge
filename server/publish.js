@@ -1,7 +1,8 @@
 Meteor.publish("Tasks", function () {
     //Meteor._sleepForMs(5000); // simulate delay for 5 sec - for debugging
     //return Tasks.find();
-    return Tasks.find({},{fields:{userid:1, "challenges.challenge":1, "challenges.title":1 }}); // return only the challenge names, for the users list
+    return Tasks.find({},{fields:{userid:1, "challenge":1, "title":1, "start":1, "timestamp":1 }}); 
+    // limit the data for the users list
 });
 
 Meteor.publish("Challenges", function(userid,challenge) {
@@ -12,8 +13,8 @@ Meteor.publish("Challenges", function(userid,challenge) {
   after publishing a few fields previously (in publish Tasks). (Meteor limitation!!)
   */
   var self = this;
-  var query = Tasks.find( {userid:userid, challenges: {$elemMatch: {challenge:challenge }}} , {fields:{userid:1,"challenges.$":1 }}  );
-//  console.log(JSON.stringify(Tasks.findOne({userid:userid, challenges: {$elemMatch: {challenge:challenge }} }  , {fields:{userid:1,"challenges.$":1 }}  )));
+  var query = Tasks.find( {userid:userid, challenge:challenge} );
+  //console.log(JSON.stringify(Tasks.findOne({userid:userid, challenge:challenge})));
   Mongo.Collection._publishCursor(query, self, "challenges");
   return self.ready();
 

@@ -207,7 +207,7 @@ Template.userProfile.helpers({
     return user;
   },
   challenges: function(userid) {
-    var challenges = Tasks.findOne( {userid:userid} ).challenges;
+    var challenges = Tasks.find({userid:userid},{sort:{timestamp:1}});
     return challenges;
   }
 });
