@@ -216,13 +216,23 @@ Template.sheet.events({
         $("#editstart").modal('show');
     },
     'click #delete-challenge': function(e) {
-        
         var userid = $(e.target).attr("data-user"); 
         var challenge = $(e.target).attr("data-challenge");
-        Meteor.call("deleteChallenge",userid,challenge,function(err,result) {
-            if(!err) {
-                Router.go('/');
-            }
+        var title = Tasks.findOne({userid:userid,challenge:challenge},{fields:{title:1}}).title;
+        sweetAlert({
+          title: "Are you sure?",
+          text: "Deleting the challenge " + title + ". This can not be undone!",
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#DD6B55",
+          confirmButtonText: "Yes, delete it!",
+          closeOnConfirm: true,
+          html: false
+        }, function(){
+            Meteor.call("deleteChallenge",userid,challenge,function(err,result) {
+                if(!err) Router.go('/');
+                
+            });           
         });
     }
 

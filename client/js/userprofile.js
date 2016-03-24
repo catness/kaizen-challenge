@@ -221,6 +221,20 @@ Template.userProfile.events({
   },
   'click .delete-user':function(e) {
     var userid = $(e.target).attr("data-user");  
-    Meteor.call("deleteUser",userid);
+    var name = $(e.target).attr("data-name");
+    sweetAlert({
+      title: "Are you sure?",
+      text: "Deleting the user " + name + ". This can not be undone!",
+      type: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#DD6B55",
+      confirmButtonText: "Yes, delete!",
+      closeOnConfirm: true,
+      html: false
+    }, function(){
+        Meteor.call("deleteUser",userid, function(err,res) {
+          if (!err) Router.go("/users/list");
+        });
+    });
   } 
 });
