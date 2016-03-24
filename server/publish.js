@@ -6,7 +6,7 @@ Meteor.publish("Tasks", function () {
 });
 
 Meteor.publish("Challenges", function(userid,challenge) {
-  console.log("publish challenge for " + userid + " " + challenge);
+  //console.log("publish challenge for " + userid + " " + challenge);
 
   /* define a client-only collection using an undocumented function _publishCursor
   because otherwise there's no way to add more fields (challenges contents) to the same collection

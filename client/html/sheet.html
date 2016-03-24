@@ -34,7 +34,13 @@ to get a callback when they are all actually rendered. -->
   <table class="table table-striped tasksheet">
     <thead>
       <tr>
-        <th>Task</th>
+        <th>
+        {{#if canAddTask}}
+        <a href="#" class="js-add-task"><i class="fa fa-plus"></i> Task</a>
+        {{else}}
+        Task
+        {{/if}}
+        </th>
         {{> dayHeader days=tasksheet.tasks.[0].days}}
       </tr>
     </thead>
@@ -49,6 +55,11 @@ to get a callback when they are all actually rendered. -->
     <span class="taskmove">
     <a href="#" class="btn btn-default btn-xs js-pos" id="up_{{@index}}"><i class="fa fa-arrow-up"></i> </a> 
     <a href="#" class="btn btn-default btn-xs js-pos" id="down_{{@index}}"><i class="fa fa-arrow-down"></i> </a>
+    {{#if canDeleteTask}}
+    &nbsp; &nbsp; 
+    <a href="#" class="btn btn-default btn-xs js-del" data-id="{{@index}}" data-title="{{title}}"><i class="fa fa-trash"></i> </a>
+
+    {{/if}}
     </span>
     </div>
 

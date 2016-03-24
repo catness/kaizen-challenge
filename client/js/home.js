@@ -42,7 +42,7 @@ Template.home.helpers({
     challenges: function() {
         var userid = Meteor.userId();
         if (!userid) return false;
-        var challenges = Tasks.find({userid:userid});
+        var challenges = Tasks.find({userid:userid},{sort:{timestamp:-1}});
         return challenges;
     },
     username:function() {
@@ -55,7 +55,7 @@ Template.joinChallenge.helpers({
     // ugh is there a better way to make a fixed range loop in Spacebars?
     numtasks:function() {
         var foo = [];
-        for (var i = 3; i <= 30; i++) {
+        for (var i = minTask; i <= maxTask; i++) {
             foo.push(i);
         }
         return foo;    

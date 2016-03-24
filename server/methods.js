@@ -36,7 +36,7 @@ createTasks: function(tasknum, date) {
     var challenge = "custom_" + startTxt;
     console.log("create tasks for " + username + " tasks=" + tasknum + " start=" + startTxt + " date=" + date + " challenge=" + challenge);
     if (Tasks.findOne( {userid:userid, challenge:challenge})) { 
-        throw new Meteor.Error("createError", "Challenge already exists");
+        throw new Meteor.Error("createError", "Challenge starting on " + date.toDateString() + " already exists.");
     }
     var titleMain = username + "'s " + tasknum + " habits challenge";
     var tasks = [];
@@ -62,6 +62,16 @@ updateTitle: function(challenge, title) {
     //if (!Tasks.findOne({userid:userid,challenge:challenge})) return;
     Tasks.update({userid:userid,challenge:challenge},{$set:{title:title}});
 },
+addTask: function(challenge, title, description) {
+    var userid = Meteor.userId();
+    var ch = Tasks.findOne({userid:userid,challenge:challenge});
+    if (!ch) return;
+    var startTxt = moment.unix(ch.timestamp).format('YYYY-MM-DD');
+    var task = {title:title, description:description, pos:ch.tasks.length};
+    task.days = makedays(startTxt,0,maxDay);
+    //console.log(JSON.stringify(task));
+    Tasks.update({userid:userid,challenge:challenge},{$push:{tasks:task}});
+},
 updateTask: function(challenge, taskid, title, description) {
     var userid = Meteor.userId();
     //if (!Tasks.findOne({userid:userid,challenge:challenge})) return;
@@ -69,6 +79,16 @@ updateTask: function(challenge, taskid, title, description) {
     myset["tasks." + taskid +".title"] = title;
     myset["tasks." + taskid +".description"] = description;
     Tasks.update({userid:userid,challenge:challenge},{$set:myset});
+},
+deleteTask: function(challenge, taskid) {
+    var userid = Meteor.userId();
+    console.log("Delete task " + taskid + " " + challenge);
+    // in Mongo there's no way to remove an array element by position! So first we unset it but it leaves a gap (null)
+    // then remove the null (all the nulls)
+    var myset = {};
+    myset["tasks." + taskid] = 1;
+    Tasks.update({userid:userid,challenge:challenge},{$unset:myset});
+    Tasks.update({userid:userid,challenge:challenge},{$pull:{tasks:null}});
 },
 moveTask: function(challenge, taskid, dir) {
     var userid = Meteor.userId();

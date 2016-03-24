@@ -1,10 +1,11 @@
+var tasksheet = null;
 var notes = {};
 //var darkThemes = {"darkly":true,"cyborg":true,"slate":true,"superhero":true};
 var curTheme = "cerulean";
 
 Template.dayHeader.onRendered(function () {
     // must wait till the day header is rendered before init popover, otherwise it doesnt work!
-    console.log("Init popover");
+    //console.log("Init popover");
     $('[data-toggle="popover"]').popover({html:true, placement:"auto left", trigger:"hover"});
 });
 
@@ -32,7 +33,7 @@ Template.dayHeader.helpers({
 Template.sheet.onCreated(function(){
     var self = this;
     self.autorun(function(){
-        console.log("Subscribe to challenge " + Session.get("userid") + " " + Session.get("challenge"));
+        //console.log("Subscribe to challenge " + Session.get("userid") + " " + Session.get("challenge"));
         self.subscribe("Challenges",Session.get("userid"),Session.get("challenge"));
     })
 });
@@ -42,7 +43,7 @@ Template.sheet.helpers({
     result:function() {
         // wrapping tasksheet in a special "result" object to distinguish between the case when the user is not logged in
         // and when the database is still loading
-        console.log("sheet start");
+        //console.log("sheet start");
         var userid = Session.get("userid");
         if (!userid) {
             console.log("Userid not defined");
@@ -53,7 +54,7 @@ Template.sheet.helpers({
             console.log("Challenge not defined");
             return null;            
         }
-        var tasksheet = Challenges.findOne({userid:userid,challenge:challenge});
+        tasksheet = Challenges.findOne({userid:userid,challenge:challenge});
         // Challenges are published by the server for userid and challenge
         //console.log("tasksheet = " + JSON.stringify(tasksheet));
         if (!tasksheet) {
@@ -63,6 +64,8 @@ Template.sheet.helpers({
             tasksheet.userid = userid;
             notes = tasksheet.notes;
             curTheme = Session.get("theme");
+            Session.set("canAddTask",tasksheet.tasks.length<maxTask); // to make it reactive
+            Session.set("canDeleteTask",tasksheet.tasks.length>minTask);
             return {tasksheet:tasksheet,ready:true};
         }
     },
@@ -71,7 +74,7 @@ Template.sheet.helpers({
         else return 'checkbox-success';
     },
     isChecked:function(val) {
-        return (val==0)?false:true;
+        return (val!=0);
     },
     getColumnClass:function(day) {
         var date = new Date(); 
@@ -83,6 +86,14 @@ Template.sheet.helpers({
         var date = new Date(start);
         var enddate = date.addDays(maxDay-1).toDateString();
         return enddate;
+    },
+    canAddTask:function() {
+        if (!tasksheet) return false;
+        return Session.get("canAddTask");
+    },
+    canDeleteTask:function() {
+        if (!tasksheet) return false;
+        return Session.get("canDeleteTask");
     }
 });
 
@@ -136,6 +147,16 @@ Template.sheet.events({
         $("#title").val(title);
         $("#description").val(description);
         $("#pos").val(taskid); //current position
+        $("#modal-title").text("Edit task");
+        $("#edittask").modal('show');
+    },
+    'click .js-add-task': function(e) {
+        // open modal for the new task, to add the task name & description
+        if (Session.get("userid") != Meteor.userId()) return false;
+        $("#title").val('');
+        $("#description").val('');
+        $("#pos").val(-1); //new task
+        $("#modal-title").text("New task");
         $("#edittask").modal('show');
     },
     'click .js-pos': function(e) {
@@ -144,11 +165,33 @@ Template.sheet.events({
         var splitted = $(e.currentTarget).attr('id').split('_');
         var dir = splitted[0]; // up or down
         var taskid = splitted[1];
-        if (!Meteor.user()) return false;
-        var userid = Session.get("userid");
-        if (userid != Meteor.userId()) return false; // this timesheet doesn't belong to the logged user
         var challenge = Session.get("challenge");
         Meteor.call('moveTask', challenge, taskid, dir);
+    },
+    'click .js-del': function(e) {
+        // move the task up or down
+        if (Session.get("userid") != Meteor.userId()) return false;
+        var taskid = $(e.currentTarget).attr("data-id");
+        var title = $(e.currentTarget).attr("data-title");
+        console.log("delete task " + taskid + " " + title);
+        sweetAlert({
+          title: "Are you sure?",
+          text: "Deleting the task " + title + ". This can not be undone!",
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#DD6B55",
+          confirmButtonText: "Yes, delete it!",
+          closeOnConfirm: false,
+          html: false
+        }, function(){
+            var challenge = Session.get("challenge");
+            console.log("Really deleting the task " + taskid + " " + title);
+            Meteor.call('deleteTask', challenge, taskid, function(err,res) {
+                sweetAlert("Deleted!",
+                "Your task has been deleted.",
+                "success");   
+            });
+        });
     },
     'click #js-title': function(e) {
         // open modal to edit the sheet name
@@ -203,7 +246,10 @@ Template.editTask.events({
             var description = $(e.target).find('[name=description]').val().trim();
             var taskid = $(e.target).find('[name=pos]').val().trim();
             var challenge = Session.get("challenge");
-            Meteor.call('updateTask', challenge, taskid, title, description);
+            if (title != '') {
+                if (taskid>=0) Meteor.call('updateTask', challenge, taskid, title, description);
+                else Meteor.call('addTask', challenge, title, description);
+            }
         }
     }
     $("#edittask").modal('hide');

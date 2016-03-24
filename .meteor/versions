@@ -55,6 +55,7 @@ jparker:crypto-core@0.1.0
 jparker:crypto-md5@0.1.1
 jparker:gravatar@0.3.1
 jquery@1.11.4
+kevohagan:sweetalert@1.0.0
 launch-screen@1.0.4
 livedata@1.0.15
 localstorage@1.0.5

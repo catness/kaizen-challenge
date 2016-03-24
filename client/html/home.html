@@ -39,7 +39,13 @@
 
 
 {{#each challenges _id}}
-<p><strong>Go to challenge: </strong> <a href="/challenge/{{challenge}}/{{currentUser.username}}">{{title}} {{start}}</a> </p>
+<p><strong>
+{{#unless @index}}
+Go to challenge: 
+{{else}}
+Review challenge: 
+{{/unless}}
+</strong> <a href="/challenge/{{challenge}}/{{currentUser.username}}">{{title}} {{start}}</a> </p>
 {{/each}}
 
 <button class="join-challenge btn btn-success">Create your own challenge</button>
