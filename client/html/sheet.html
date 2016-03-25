@@ -25,8 +25,8 @@ to get a callback when they are all actually rendered. -->
 {{#if result.tasksheet}}
 {{#let tasksheet=result.tasksheet}}
 
-<h1 class="ctitle" id="js-title">{{tasksheet.title}}</h1>
-<h2 class="cstart" id="js-start">{{tasksheet.start}} - {{getEnd tasksheet.start}}</h2>
+<a href="#" class="ctitle" id="js-title"><h1>{{tasksheet.title}}</h1></a>
+<a href="#" class="cstart" id="js-start"><h2>{{tasksheet.start}} - {{getEnd tasksheet.start}}</h2></a>
 
 <form role="form">
   <div class="table-responsive">
