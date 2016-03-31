@@ -12,9 +12,10 @@ var makedays = function(startdate, startday, endday) {
     // startdate is a text specification of a date. If '', then it takes current date.
     var days = [];
     for (var day=startday;day<endday;day++) {
-        var d = (startdate)?new Date(startdate):new Date();
-        d.addDays(day);
-        var dd = d.toDateString();
+        //var d = (startdate)?new Date(startdate):new Date();
+        //d.addDays(day);
+        //var dd = d.toDateString();
+        var dd = moment(startdate).add(day,'days').format("ddd MMM DD YYYY");
         days.push({day:dd, value:0});
     }
     return days;
@@ -29,24 +30,45 @@ var verifyUsername = function(username) {
 }
 
 Meteor.methods({
-createTasks: function(tasknum, date) {
+createTasks: function(tasknum, startTxt, preset) {
     var userid = Meteor.userId();
     var username = Meteor.users.findOne({_id:userid},{fields:{'username':1}}).username;
-    var startTxt = moment(date).format('YYYY-MM-DD');
+    //var startTxt = moment(date).format('YYYY-MM-DD');
     var challenge = "custom_" + startTxt;
-    console.log("create tasks for " + username + " tasks=" + tasknum + " start=" + startTxt + " date=" + date + " challenge=" + challenge);
+    //var date = new Date (Date.parse(startTxt));
+    var dateFormatted = moment(startTxt).format("ddd MMM DD YYYY");
+    console.log("create tasks for " + username + " " + userid + " tasks=" + tasknum + " start=" + startTxt + 
+        " date=" + dateFormatted + 
+        " challenge=" + challenge + " preset=" + preset);
     if (Tasks.findOne( {userid:userid, challenge:challenge})) { 
-        throw new Meteor.Error("createError", "Challenge starting on " + date.toDateString() + " already exists.");
+        throw new Meteor.Error("createError", "Challenge starting on " + dateFormatted + " already exists.");
     }
-    var titleMain = username + "'s " + tasknum + " habits challenge";
+    var titleMain;
+    if (preset == '10habits') {
+        tasknum = 10;
+        titleMain = username + "'s " + " 30 days of Kaizen challenge";
+    }
+    else {
+        titleMain = username + "'s " + tasknum + " habits challenge";
+    }
     var tasks = [];
     for (var pos=0;pos<tasknum;pos++) {
-        var task = {title:"Task #"+(pos+1), description:"...", pos:pos};
+        var task;
+        if (preset == '10habits') {
+            var title = challenge_titles10x30[pos][0];  //challenges.js
+            var description = challenge_titles10x30[pos][1];
+// id is the fixed id of the task used for reports later, in case the users will move the tasks around and rename them
+// so we still know which task is which
+            task = {title:title, description:description,pos:pos,id:pos};
+        }
+        else {
+            task = {title:"Task #"+(pos+1), description:"...", pos:pos};
+        }
         task.days = makedays(startTxt,0,maxDay);
         tasks.push(task);
     }
     // timestamp (unix timestamp) needed to sort by date on the client: minimongo doesn't support sorting by date
-    Tasks.insert({userid:userid, challenge:challenge, start:date.toDateString(), timestamp:moment(date).unix(),
+    Tasks.insert({userid:userid, challenge:challenge, start:dateFormatted, timestamp:moment(startTxt).unix(),
         title:titleMain, tasks:tasks });
 },
 checkbox: function(challenge, taskid, dayid, checked) {
@@ -128,7 +150,9 @@ updateStart: function(challenge, start) {
     if (!t) return;
     var tasks = t.tasks;
     var current = t.start;
-    var diff = dateDiffInDays(new Date(start), new Date(current));
+    var diff = moment(current).diff(moment(start),'days');
+    console.log("updateStart: start=" + start + " current start = " + current + " diff = " + diff + " userid=" + userid);
+    //var diff = dateDiffInDays(new Date(start), new Date(current));
     if (diff==0) return;
     var maxTask = tasks.length;
     for (var i=0;i<maxTask;i++) {
@@ -150,9 +174,10 @@ updateStart: function(challenge, start) {
         }
     }
     var myset = {};
-    var date = new Date(start);
-    myset["start"] = date.toDateString();
-    myset["timestamp"] = moment(date).unix();
+    var dateFormatted = moment(start).format("ddd MMM DD YYYY");
+    //var date = new Date(start);
+    myset["start"] = dateFormatted;
+    myset["timestamp"] = moment(start).unix();
     myset["tasks"] = tasks;
     if ("notes" in t) {
         myset["notes"] = t.notes;

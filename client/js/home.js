@@ -67,11 +67,13 @@ Template.joinChallenge.events({
         e.preventDefault();
         var tasknum = $(e.target).find('[name=tasknum]').val();
         var start = $(e.target).find('[name=start]').val().trim();
-        var date = new Date (Date.parse(start));
-        console.log("joinchallenge submit: tasknum = " + tasknum + " start=" + start);
+        var preset = $(e.target).find('[name=preset]').val();
+        //var date = new Date (Date.parse(start));
+        var dateFixed = moment(start).format('YYYY-MM-DD'); // just in case, because we can't trust what the user enters in the date field
+        console.log("joinchallenge submit: tasknum = " + tasknum + " start=" + start + " preset="+preset+" dateFixed="+JSON.stringify(dateFixed));
         $("#joinchallenge").modal('hide');
         $("#please-wait").removeClass('hidden');
-        Meteor.call("createTasks", tasknum, date, function(err,challenge) {
+        Meteor.call("createTasks", tasknum, dateFixed, preset, function(err,challenge) {
             if (err) {
                 console.log("error creating challenge");
                 setDisplayMessage(err["reason"]);

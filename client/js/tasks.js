@@ -287,9 +287,10 @@ Template.editStart.events({
         var userid = Session.get("userid");
         if (userid == Meteor.userId()) { // this timesheet belongs to the logged user
             var start = $(e.target).find('[name=start]').val().trim();
-            var date = new Date (Date.parse(start));
+            //var date = new Date (Date.parse(start));
+            var dateFixed = moment(start).format('YYYY-MM-DD'); // just in case, because we can't trust what the user enters in the date field
             var challenge = Session.get("challenge");
-            Meteor.call('updateStart', challenge, date);
+            Meteor.call('updateStart', challenge, dateFixed);
         }
     }
     $("#editstart").modal('hide');
